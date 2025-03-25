@@ -11,10 +11,10 @@
 // Import Routes
 
 import { Route as rootRoute } from './../routes/__root'
-import { Route as PrivateIndexImport } from './../routes/_private/index'
-import { Route as PrivateRouteImport } from './../routes/_private/route'
-import { Route as PublicLoginIndexImport } from './../routes/_public/login/index'
 import { Route as PublicRouteImport } from './../routes/_public/route'
+import { Route as PrivateRouteImport } from './../routes/_private/route'
+import { Route as PrivateIndexImport } from './../routes/_private/index'
+import { Route as PublicLoginIndexImport } from './../routes/_public/login/index'
 
 // Create/Update Routes
 
@@ -85,7 +85,9 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateIndexRoute: PrivateIndexRoute,
 }
 
-const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(PrivateRouteRouteChildren)
+const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(
+  PrivateRouteRouteChildren,
+)
 
 interface PublicRouteRouteChildren {
   PublicLoginIndexRoute: typeof PublicLoginIndexRoute
@@ -95,7 +97,9 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicLoginIndexRoute: PublicLoginIndexRoute,
 }
 
-const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(PublicRouteRouteChildren)
+const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
+  PublicRouteRouteChildren,
+)
 
 export interface FileRoutesByFullPath {
   '': typeof PublicRouteRouteWithChildren
@@ -136,7 +140,9 @@ const rootRouteChildren: RootRouteChildren = {
   PublicRouteRoute: PublicRouteRouteWithChildren,
 }
 
-export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {

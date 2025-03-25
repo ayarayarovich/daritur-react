@@ -7,3 +7,5 @@ interface ImportMetaEnv extends ImportMetaEnvAugmented {
   // Now import.meta.env is totally type-safe and based on your `env.ts` schema definition
   // You can also add custom variables that are not defined in your schema
 }
+
+declare const __APP_VERSION__: string
