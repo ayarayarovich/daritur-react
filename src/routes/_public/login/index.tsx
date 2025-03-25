@@ -38,7 +38,7 @@ function RouteComponent() {
       password: '',
     },
   })
-
+  console.log('test')
   const onSubmit = form.handleSubmit(
     async (v) => {
       await toast.promise(AuthService.login(v), {
