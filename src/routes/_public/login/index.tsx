@@ -53,6 +53,7 @@ function RouteComponent() {
   )
   return (
     <div className='flex min-h-screen flex-col items-center justify-center p-4'>
+      <div className='grow'></div>
       <img src='/logo.svg' alt='logo' className='mb-6 w-60' />
       <form onSubmit={onSubmit} className='bg-gray-6 :lg:gap-6 flex w-full max-w-sm flex-col items-stretch gap-4 rounded-xl p-6 lg:p-10'>
         <Controller
@@ -71,6 +72,8 @@ function RouteComponent() {
           Войти
         </Button>
       </form>
+      <div className='grow'></div>
+      <div className='text-gray-4'>version: {__APP_VERSION__}</div>
     </div>
   )
 }
