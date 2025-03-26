@@ -11,10 +11,11 @@
 // Import Routes
 
 import { Route as rootRoute } from './../routes/__root'
-import { Route as PublicRouteImport } from './../routes/_public/route'
+import { Route as PrivateLayoutIndexImport } from './../routes/_private/_layout/index'
+import { Route as PrivateLayoutRouteImport } from './../routes/_private/_layout/route'
 import { Route as PrivateRouteImport } from './../routes/_private/route'
-import { Route as PrivateIndexImport } from './../routes/_private/index'
 import { Route as PublicLoginIndexImport } from './../routes/_public/login/index'
+import { Route as PublicRouteImport } from './../routes/_public/route'
 
 // Create/Update Routes
 
@@ -28,9 +29,8 @@ const PrivateRouteRoute = PrivateRouteImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PrivateIndexRoute = PrivateIndexImport.update({
-  id: '/',
-  path: '/',
+const PrivateLayoutRouteRoute = PrivateLayoutRouteImport.update({
+  id: '/_layout',
   getParentRoute: () => PrivateRouteRoute,
 } as any)
 
@@ -38,6 +38,12 @@ const PublicLoginIndexRoute = PublicLoginIndexImport.update({
   id: '/login/',
   path: '/login/',
   getParentRoute: () => PublicRouteRoute,
+} as any)
+
+const PrivateLayoutIndexRoute = PrivateLayoutIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -58,12 +64,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRoute
     }
-    '/_private/': {
-      id: '/_private/'
+    '/_private/_layout': {
+      id: '/_private/_layout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof PrivateLayoutRouteImport
+      parentRoute: typeof PrivateRouteImport
+    }
+    '/_private/_layout/': {
+      id: '/_private/_layout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof PrivateIndexImport
-      parentRoute: typeof PrivateRouteImport
+      preLoaderRoute: typeof PrivateLayoutIndexImport
+      parentRoute: typeof PrivateLayoutRouteImport
     }
     '/_public/login/': {
       id: '/_public/login/'
@@ -77,17 +90,25 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface PrivateLayoutRouteRouteChildren {
+  PrivateLayoutIndexRoute: typeof PrivateLayoutIndexRoute
+}
+
+const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
+  PrivateLayoutIndexRoute: PrivateLayoutIndexRoute,
+}
+
+const PrivateLayoutRouteRouteWithChildren = PrivateLayoutRouteRoute._addFileChildren(PrivateLayoutRouteRouteChildren)
+
 interface PrivateRouteRouteChildren {
-  PrivateIndexRoute: typeof PrivateIndexRoute
+  PrivateLayoutRouteRoute: typeof PrivateLayoutRouteRouteWithChildren
 }
 
 const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
-  PrivateIndexRoute: PrivateIndexRoute,
+  PrivateLayoutRouteRoute: PrivateLayoutRouteRouteWithChildren,
 }
 
-const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(
-  PrivateRouteRouteChildren,
-)
+const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(PrivateRouteRouteChildren)
 
 interface PublicRouteRouteChildren {
   PublicLoginIndexRoute: typeof PublicLoginIndexRoute
@@ -97,19 +118,17 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicLoginIndexRoute: PublicLoginIndexRoute,
 }
 
-const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
-  PublicRouteRouteChildren,
-)
+const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(PublicRouteRouteChildren)
 
 export interface FileRoutesByFullPath {
-  '': typeof PublicRouteRouteWithChildren
-  '/': typeof PrivateIndexRoute
+  '': typeof PrivateLayoutRouteRouteWithChildren
+  '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
 }
 
 export interface FileRoutesByTo {
   '': typeof PublicRouteRouteWithChildren
-  '/': typeof PrivateIndexRoute
+  '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
 }
 
@@ -117,7 +136,8 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_private': typeof PrivateRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
-  '/_private/': typeof PrivateIndexRoute
+  '/_private/_layout': typeof PrivateLayoutRouteRouteWithChildren
+  '/_private/_layout/': typeof PrivateLayoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
 }
 
@@ -126,7 +146,7 @@ export interface FileRouteTypes {
   fullPaths: '' | '/' | '/login'
   fileRoutesByTo: FileRoutesByTo
   to: '' | '/' | '/login'
-  id: '__root__' | '/_private' | '/_public' | '/_private/' | '/_public/login/'
+  id: '__root__' | '/_private' | '/_public' | '/_private/_layout' | '/_private/_layout/' | '/_public/login/'
   fileRoutesById: FileRoutesById
 }
 
@@ -140,9 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   PublicRouteRoute: PublicRouteRouteWithChildren,
 }
 
-export const routeTree = rootRoute
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {
@@ -157,7 +175,7 @@ export const routeTree = rootRoute
     "/_private": {
       "filePath": "_private/route.tsx",
       "children": [
-        "/_private/"
+        "/_private/_layout"
       ]
     },
     "/_public": {
@@ -166,9 +184,16 @@ export const routeTree = rootRoute
         "/_public/login/"
       ]
     },
-    "/_private/": {
-      "filePath": "_private/index.tsx",
-      "parent": "/_private"
+    "/_private/_layout": {
+      "filePath": "_private/_layout/route.tsx",
+      "parent": "/_private",
+      "children": [
+        "/_private/_layout/"
+      ]
+    },
+    "/_private/_layout/": {
+      "filePath": "_private/_layout/index.tsx",
+      "parent": "/_private/_layout"
     },
     "/_public/login/": {
       "filePath": "_public/login/index.tsx",

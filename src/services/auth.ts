@@ -78,16 +78,13 @@ export const logout = () => {
 export const getMe = async () => {
   const response = await Axios.privateClient.get('/users/me')
   const scheme = z.object({
-    user: z.object({
-      id: z.number(),
-      name: z.string(),
-      birthday: z.string().transform((v) => DateTime.fromFormat(v, 'YYYY-dd-MM')),
-      gender: z.string(),
-      phone: z.string(),
-      email: z.string(),
-      created_at: z.string().transform((v) => DateTime.fromISO(v)),
-      updated_at: z.string().transform((v) => DateTime.fromISO(v)),
-    }),
+    id: z.number(),
+    email: z.string(),
+    middleName: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    phone: z.string(),
+    role: z.string(),
   })
   const data = scheme.parse(response.data)
   return data

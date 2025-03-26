@@ -4,7 +4,6 @@ import { Utils } from '@/lib'
 import { MessageModal, ResetPasswordModal } from '@/modals'
 import { ModalRenderer } from '@ayarayarovich/react-modals'
 import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
@@ -17,7 +16,6 @@ export const Route = createRootRoute({
 
       <Toaster />
       <Outlet />
-      <TanStackRouterDevtools />
     </>
   ),
 })
