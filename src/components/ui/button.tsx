@@ -5,14 +5,16 @@ import { twMergifyCva } from '@/lib/utils'
 import { cva, VariantProps } from 'class-variance-authority'
 
 const buttonCva = twMergifyCva(
-  cva('text-center rounded-lg font-medium transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-default', {
+  cva('text-center rounded-lg transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-default', {
     variants: {
       intent: {
-        primary: 'text-white bg-teal-500',
-        secondary: 'text-white bg-gray-1',
+        primary: 'text-white bg-teal-500 font-medium',
+        secondary: 'text-white bg-gray-1 font-medium',
+        link: 'text-blue-1',
       },
       size: {
         md: 'py-2 px-4 text-xl',
+        linkMd: 'py-0 px-4 text-base',
       },
     },
   }),

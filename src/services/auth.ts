@@ -48,7 +48,7 @@ export const login = async (vars: { username: string; password: string }) => {
 }
 
 export const refreshToken = async (payload: { refreshToken: string }) => {
-  const response = await Axios.publicClient.post('/admin/refresh', {
+  const response = await Axios.publicClient.post('/auth/refresh', {
     refresh_token: payload.refreshToken,
   })
   const scheme = z.object({
@@ -60,13 +60,23 @@ export const refreshToken = async (payload: { refreshToken: string }) => {
   return data
 }
 
+export const resetPassword = async (payload: { email: string }) => {
+  const response = await Axios.publicClient.post('/reset', payload)
+  const schema = z.object({
+    token: z.string(),
+    expiredAt: z.string().transform((v) => DateTime.fromISO(v)),
+  })
+  const data = schema.parse(response.data)
+  return data
+}
+
 export const logout = () => {
   resetUserData()
   window.location.reload()
 }
 
 export const getMe = async () => {
-  const response = await Axios.privateClient.get('/admin/me')
+  const response = await Axios.privateClient.get('/users/me')
   const scheme = z.object({
     user: z.object({
       id: z.number(),

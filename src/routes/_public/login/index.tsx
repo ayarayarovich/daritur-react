@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import Button from '@/components/ui/button'
 import TextField from '@/components/ui/text-field'
 import { extractErrorMessageFromAPIError } from '@/lib/utils'
+import { ResetPasswordModal } from '@/modals'
 import { AuthService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createFileRoute, redirect } from '@tanstack/react-router'
@@ -22,6 +23,8 @@ export const Route = createFileRoute('/_public/login/')({
 })
 
 function RouteComponent() {
+  const resetPasswordModal = ResetPasswordModal.use()
+
   const navigate = Route.useNavigate()
   const formScheme = useMemo(
     () =>
@@ -67,9 +70,22 @@ function RouteComponent() {
             <TextField label='Пароль' intent='primary' {...field} isInvalid={fieldState.invalid} type='password' />
           )}
         />
-        <Button type='submit' isDisabled={form.formState.isSubmitting || form.formState.isSubmitSuccessful}>
-          Войти
-        </Button>
+        <div className='flex flex-col items-stretch gap-2'>
+          <Button type='submit' isDisabled={form.formState.isSubmitting || form.formState.isSubmitSuccessful}>
+            Войти
+          </Button>
+          <div className='self-center'>
+            <Button
+              type='button'
+              intent='link'
+              size='linkMd'
+              onPress={() => resetPasswordModal.open()}
+              isDisabled={form.formState.isSubmitting || form.formState.isSubmitSuccessful}
+            >
+              Забыли пароль?
+            </Button>
+          </div>
+        </div>
       </form>
       <div className='grow'></div>
       <div className='text-gray-4'>version: {__APP_VERSION__}</div>

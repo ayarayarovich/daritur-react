@@ -5,7 +5,7 @@ import { twMergifyCva } from '@/lib/utils'
 import { cva, VariantProps } from 'class-variance-authority'
 
 const boxCva = twMergifyCva(
-  cva(['rounded-lg relative border-2'], {
+  cva(['rounded-lg relative border-2 overflow-hidden'], {
     variants: {
       intent: {
         primary: ['shadow-[0px_0px_2px_0px] transition-colors shadow-[#C4C4C4] border-transparent focus-within:border-[#C4C4C4]/50'],
@@ -39,7 +39,7 @@ const inputCva = twMergifyCva(
   cva(['placeholder:hidden w-full placeholder:opacity-0 placeholder:invisible placeholder:scale-0 outline-none'], {
     variants: {
       intent: {
-        primary: ['text-gray-1'],
+        primary: ['text-gray-1 bg-white'],
       },
       size: {
         md: ['px-4 py-2.5'],
@@ -58,7 +58,7 @@ const TextField = forwardRef(
 
     return (
       <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>
-        <input className={inputCva({ size, className: 'peer' })} {...inputProps} placeholder='' ref={ref} />
+        <input className={inputCva({ intent, size, className: 'peer' })} {...inputProps} placeholder='' ref={ref} />
         <label className={labelCva({ intent, size, className: 'hidden peer-placeholder-shown:block' })} {...labelProps}>
           {label}
         </label>
