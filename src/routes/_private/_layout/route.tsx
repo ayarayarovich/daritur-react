@@ -1,4 +1,3 @@
-import { HiOutlineUsers } from 'react-icons/hi'
 import { HiOutlineArrowRightOnRectangle } from 'react-icons/hi2'
 
 import Button from '@/components/ui/button'
@@ -6,14 +5,19 @@ import { AuthService } from '@/services'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
 
+import { Query } from '@/shared'
 import Queries from '@/shared/queries'
 
 export const Route = createFileRoute('/_private/_layout')({
   component: RouteComponent,
+  loader: async () => {
+    await Query.client.prefetchQuery(Queries.me.menu)
+  },
 })
 
 function RouteComponent() {
   const meQuery = useSuspenseQuery(Queries.me.self)
+  const menuQuery = useSuspenseQuery(Queries.me.menu)
 
   return (
     <div className='pl-44'>
@@ -23,15 +27,17 @@ function RouteComponent() {
         </div>
         <div className='mb-4 px-5 text-center text-base font-bold'>DariTur Admin</div>
         <div className='flex grow flex-col items-stretch gap-2'>
-          <Link
-            to='/staffs'
-            className='data-[status=active]:text-gray-1 flex items-center gap-1 px-5 py-1 text-sm text-white data-[status=active]:bg-white'
-          >
-            <HiOutlineUsers />
-            Сотрудники
-          </Link>
+          {menuQuery.data.map((v) => (
+            <Link
+              to={`/${v.path}` as never}
+              className='data-[status=active]:text-gray-1 flex items-center gap-1 px-5 py-1 text-sm text-white data-[status=active]:bg-white'
+            >
+              {v.iconUrl && <img className='size-[1em]' src={v.iconUrl} alt={v.title} />}
+              {v.title}
+            </Link>
+          ))}
         </div>
-        <div className='px-5'>
+        <div className='mb-4 px-5'>
           <div className='text-sm font-medium'>{meQuery.data.role}</div>
           <div className='mb-4 text-xs font-light'>
             {[meQuery.data.lastName, meQuery.data.firstName, meQuery.data.middleName].filter(Boolean).join(' ')}
@@ -41,6 +47,7 @@ function RouteComponent() {
             Выйти
           </Button>
         </div>
+        <div className='px-5 text-center text-sm opacity-50'>version: {__APP_VERSION__}</div>
       </div>
       <Outlet />
     </div>

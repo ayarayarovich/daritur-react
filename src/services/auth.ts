@@ -92,11 +92,22 @@ export const getMe = async () => {
 
 export const getMenu = async () => {
   const response = await Axios.privateClient.get('/react-admin/menu')
-  const scheme = z.object({
-    path: z.string(),
-    iconUrl: z.string(),
-    title: z.string(),
-  })
+  const scheme = z
+    .object({
+      path: z.union([
+        z.literal('booking'),
+        z.literal('tours'),
+        z.literal('hotels'),
+        z.literal('excursions'),
+        z.literal('offices'),
+        z.literal('staffs'),
+      ]),
+      iconUrl: z.string().url().catch(''),
+      title: z.string(),
+    })
+    .array()
+    .nullish()
+    .transform((v) => v || [])
   const data = scheme.parse(response.data)
   return data
 }
