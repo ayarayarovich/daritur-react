@@ -89,3 +89,14 @@ export const getMe = async () => {
   const data = scheme.parse(response.data)
   return data
 }
+
+export const getMenu = async () => {
+  const response = await Axios.privateClient.get('/react-admin/menu')
+  const scheme = z.object({
+    path: z.string(),
+    iconUrl: z.string(),
+    title: z.string(),
+  })
+  const data = scheme.parse(response.data)
+  return data
+}

@@ -11,11 +11,12 @@
 // Import Routes
 
 import { Route as rootRoute } from './../routes/__root'
-import { Route as PrivateLayoutIndexImport } from './../routes/_private/_layout/index'
-import { Route as PrivateLayoutRouteImport } from './../routes/_private/_layout/route'
-import { Route as PrivateRouteImport } from './../routes/_private/route'
-import { Route as PublicLoginIndexImport } from './../routes/_public/login/index'
 import { Route as PublicRouteImport } from './../routes/_public/route'
+import { Route as PrivateRouteImport } from './../routes/_private/route'
+import { Route as PrivateLayoutRouteImport } from './../routes/_private/_layout/route'
+import { Route as PublicLoginIndexImport } from './../routes/_public/login/index'
+import { Route as PrivateLayoutIndexImport } from './../routes/_private/_layout/index'
+import { Route as PrivateLayoutStaffsImport } from './../routes/_private/_layout/staffs'
 
 // Create/Update Routes
 
@@ -46,6 +47,12 @@ const PrivateLayoutIndexRoute = PrivateLayoutIndexImport.update({
   getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
 
+const PrivateLayoutStaffsRoute = PrivateLayoutStaffsImport.update({
+  id: '/staffs',
+  path: '/staffs',
+  getParentRoute: () => PrivateLayoutRouteRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -71,6 +78,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateLayoutRouteImport
       parentRoute: typeof PrivateRouteImport
     }
+    '/_private/_layout/staffs': {
+      id: '/_private/_layout/staffs'
+      path: '/staffs'
+      fullPath: '/staffs'
+      preLoaderRoute: typeof PrivateLayoutStaffsImport
+      parentRoute: typeof PrivateLayoutRouteImport
+    }
     '/_private/_layout/': {
       id: '/_private/_layout/'
       path: '/'
@@ -91,14 +105,17 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface PrivateLayoutRouteRouteChildren {
+  PrivateLayoutStaffsRoute: typeof PrivateLayoutStaffsRoute
   PrivateLayoutIndexRoute: typeof PrivateLayoutIndexRoute
 }
 
 const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
+  PrivateLayoutStaffsRoute: PrivateLayoutStaffsRoute,
   PrivateLayoutIndexRoute: PrivateLayoutIndexRoute,
 }
 
-const PrivateLayoutRouteRouteWithChildren = PrivateLayoutRouteRoute._addFileChildren(PrivateLayoutRouteRouteChildren)
+const PrivateLayoutRouteRouteWithChildren =
+  PrivateLayoutRouteRoute._addFileChildren(PrivateLayoutRouteRouteChildren)
 
 interface PrivateRouteRouteChildren {
   PrivateLayoutRouteRoute: typeof PrivateLayoutRouteRouteWithChildren
@@ -108,7 +125,9 @@ const PrivateRouteRouteChildren: PrivateRouteRouteChildren = {
   PrivateLayoutRouteRoute: PrivateLayoutRouteRouteWithChildren,
 }
 
-const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(PrivateRouteRouteChildren)
+const PrivateRouteRouteWithChildren = PrivateRouteRoute._addFileChildren(
+  PrivateRouteRouteChildren,
+)
 
 interface PublicRouteRouteChildren {
   PublicLoginIndexRoute: typeof PublicLoginIndexRoute
@@ -118,16 +137,20 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicLoginIndexRoute: PublicLoginIndexRoute,
 }
 
-const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(PublicRouteRouteChildren)
+const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
+  PublicRouteRouteChildren,
+)
 
 export interface FileRoutesByFullPath {
   '': typeof PrivateLayoutRouteRouteWithChildren
+  '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
 }
 
 export interface FileRoutesByTo {
   '': typeof PublicRouteRouteWithChildren
+  '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
 }
@@ -137,16 +160,24 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
   '/_private/_layout': typeof PrivateLayoutRouteRouteWithChildren
+  '/_private/_layout/staffs': typeof PrivateLayoutStaffsRoute
   '/_private/_layout/': typeof PrivateLayoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/' | '/login'
+  fullPaths: '' | '/staffs' | '/' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '' | '/' | '/login'
-  id: '__root__' | '/_private' | '/_public' | '/_private/_layout' | '/_private/_layout/' | '/_public/login/'
+  to: '' | '/staffs' | '/' | '/login'
+  id:
+    | '__root__'
+    | '/_private'
+    | '/_public'
+    | '/_private/_layout'
+    | '/_private/_layout/staffs'
+    | '/_private/_layout/'
+    | '/_public/login/'
   fileRoutesById: FileRoutesById
 }
 
@@ -160,7 +191,9 @@ const rootRouteChildren: RootRouteChildren = {
   PublicRouteRoute: PublicRouteRouteWithChildren,
 }
 
-export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>()
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {
@@ -188,8 +221,13 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
       "filePath": "_private/_layout/route.tsx",
       "parent": "/_private",
       "children": [
+        "/_private/_layout/staffs",
         "/_private/_layout/"
       ]
+    },
+    "/_private/_layout/staffs": {
+      "filePath": "_private/_layout/staffs.tsx",
+      "parent": "/_private/_layout"
     },
     "/_private/_layout/": {
       "filePath": "_private/_layout/index.tsx",

@@ -5,19 +5,28 @@ import { twMergifyCva } from '@/lib/utils'
 import { cva, VariantProps } from 'class-variance-authority'
 
 const buttonCva = twMergifyCva(
-  cva('text-center rounded-lg transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-default', {
+  cva('text-center leading-none! rounded-lg transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-default', {
     variants: {
       intent: {
         primary: 'text-white bg-teal-500',
         secondary: 'text-white bg-gray-1',
+        ghost: 'text-gray-1 bg-none hover:bg-gray-6',
+        warning: 'text-gray-1 bg-yellow-400',
         link: 'text-blue-1',
       },
       size: {
-        xs: 'py-1 px-2 text-xs',
-        md: 'py-2 px-4 text-xl font-medium',
-        linkMd: 'py-0 px-4 text-base',
+        xs: 'py-2 px-2 text-xs min-h-7',
+        sm: 'py-2 px-3 text-base min-h-8',
+        md: 'py-4 px-4 text-xl font-medium min-h-13',
       },
     },
+    compoundVariants: [
+      {
+        intent: 'link',
+        size: 'md',
+        className: 'py-0 px-4 text-base font-normal',
+      },
+    ],
   }),
 )
 

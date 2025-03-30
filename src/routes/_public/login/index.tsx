@@ -78,7 +78,7 @@ function RouteComponent() {
             <Button
               type='button'
               intent='link'
-              size='linkMd'
+              size='md'
               onPress={() => resetPasswordModal.open()}
               isDisabled={form.formState.isSubmitting || form.formState.isSubmitSuccessful}
             >
