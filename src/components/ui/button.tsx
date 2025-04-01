@@ -10,7 +10,7 @@ const buttonCva = twMergifyCva(
       intent: {
         primary: 'text-white bg-teal-500',
         secondary: 'text-white bg-gray-1',
-        ghost: 'text-gray-1 bg-none hover:bg-gray-6',
+        ghost: 'text-gray-1 bg-none hover:not-disabled:bg-gray-6',
         warning: 'text-gray-1 bg-yellow-400',
         link: 'text-blue-1',
       },

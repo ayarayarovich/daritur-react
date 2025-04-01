@@ -17,6 +17,10 @@ const employees = createQueryKeys('employees', {
     queryKey: [{ config }],
     queryFn: () => StaffService.getEmployees(config),
   }),
+  info: {
+    queryKey: null,
+    queryFn: StaffService.getStaffsInfo,
+  },
 })
 
 const offices = createQueryKeys('offices', {
@@ -24,6 +28,10 @@ const offices = createQueryKeys('offices', {
     queryKey: [{ config }],
     queryFn: () => StaffService.getOffices(config),
   }),
+  info: {
+    queryKey: null,
+    queryFn: StaffService.getOfficesInfo,
+  },
 })
 
 const Queries = mergeQueryKeys(me, employees, offices)

@@ -63,3 +63,27 @@ export const deleteOffices = async (payload: { ids: number[] }) => {
     await Axios.privateClient.delete(`/react-admin/offices/${id}`)
   }
 }
+
+export const getStaffsInfo = async () => {
+  const response = await Axios.privateClient.get('/react-admin/staffs/info')
+  const schema = z.object({
+    canCreate: z.boolean(),
+    canDelete: z.boolean(),
+    canEdit: z.boolean(),
+    canSearch: z.boolean(),
+  })
+  const data = schema.parse(response.data)
+  return data
+}
+
+export const getOfficesInfo = async () => {
+  const response = await Axios.privateClient.get('/react-admin/offices/info')
+  const schema = z.object({
+    canCreate: z.boolean(),
+    canDelete: z.boolean(),
+    canEdit: z.boolean(),
+    canSearch: z.boolean(),
+  })
+  const data = schema.parse(response.data)
+  return data
+}

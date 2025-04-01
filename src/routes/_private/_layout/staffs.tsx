@@ -8,7 +8,7 @@ import Checkbox from '@/components/ui/checkbox'
 import TextField from '@/components/ui/text-field'
 import { extractErrorMessageFromAPIError } from '@/lib/utils'
 import { StaffService } from '@/services'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -19,6 +19,9 @@ import Queries from '@/shared/queries'
 
 export const Route = createFileRoute('/_private/_layout/staffs')({
   component: RouteComponent,
+  loader: async () => {
+    await Promise.all([Query.client.prefetchQuery(Queries.employees.info), Query.client.prefetchQuery(Queries.offices.info)])
+  },
   validateSearch: z.object({
     employeesPageIndex: z
       .number()
@@ -88,6 +91,7 @@ function Offices() {
 
   const debouncedSearch = useDebounce(searchParams.officesSearch, 500)
 
+  const infoQuery = useSuspenseQuery(Queries.offices.info)
   const listQuery = useQuery({
     ...Queries.offices.list({
       offset: searchParams.officesPageIndex * searchParams.officesPageSize,
@@ -178,27 +182,31 @@ function Offices() {
   return (
     <div className='flex flex-col items-stretch gap-3'>
       <div className='flex items-center gap-4'>
-        <div>Офисы {listQuery.data?.count != undefined && `(${listQuery.data.count})`}</div>
-        <Button type='button' size='sm' intent='warning' className='flex items-center justify-center gap-1'>
-          <HiPlus />
-          Добавить офис
-        </Button>
+        <div>Офисы ({listQuery.data?.count ?? 0})</div>
+        {infoQuery.data.canCreate && (
+          <Button type='button' size='sm' intent='warning' className='flex items-center justify-center gap-1'>
+            <HiPlus />
+            Добавить офис
+          </Button>
+        )}
       </div>
       <div className='max-w-sm'>
-        <TextField label='Поиск...' value={searchParams.officesSearch} onChange={setSearch} />
+        {infoQuery.data.canSearch && <TextField label='Поиск...' value={searchParams.officesSearch} onChange={setSearch} />}
       </div>
       <div>
-        <Button
-          type='button'
-          onPress={() => deleteMutation.mutate({ ids: table.getSelectedRowModel().rows.map((v) => v.original.id) })}
-          isDisabled={table.getSelectedRowModel().rows.length === 0 || deleteMutation.isPending}
-          size='sm'
-          intent='ghost'
-          className='flex items-center justify-center gap-1'
-        >
-          <HiTrash />
-          Удалить
-        </Button>
+        {infoQuery.data.canDelete && (
+          <Button
+            type='button'
+            onPress={() => deleteMutation.mutate({ ids: table.getSelectedRowModel().rows.map((v) => v.original.id) })}
+            isDisabled={table.getSelectedRowModel().rows.length === 0 || deleteMutation.isPending}
+            size='sm'
+            intent='ghost'
+            className='flex items-center justify-center gap-1'
+          >
+            <HiTrash />
+            Удалить
+          </Button>
+        )}
       </div>
       <div className='w-min min-w-2xl'>
         <DataTable table={table} />
@@ -239,6 +247,7 @@ function Employees() {
   //   [searchParams, navigate],
   // )
 
+  const infoQuery = useSuspenseQuery(Queries.employees.info)
   const listQuery = useQuery({
     ...Queries.employees.list({
       offset: searchParams.employeesPageIndex * searchParams.employeesPageSize,
@@ -330,24 +339,28 @@ function Employees() {
   return (
     <div className='flex flex-col items-stretch gap-3'>
       <div className='flex items-center gap-4'>
-        <div>Сотрудники {listQuery.data?.count != undefined && `(${listQuery.data.count})`}</div>
-        <Button type='button' size='sm' intent='warning' className='flex items-center justify-center gap-1'>
-          <HiPlus />
-          Добавить сотрудника
-        </Button>
+        <div>Сотрудники ({listQuery.data?.count ?? 0})</div>
+        {infoQuery.data.canCreate && (
+          <Button type='button' size='sm' intent='warning' className='flex items-center justify-center gap-1'>
+            <HiPlus />
+            Добавить сотрудника
+          </Button>
+        )}
       </div>
       <div>
-        <Button
-          type='button'
-          onPress={() => deleteMutation.mutate({ ids: table.getSelectedRowModel().rows.map((v) => v.original.id) })}
-          isDisabled={table.getSelectedRowModel().rows.length === 0 || deleteMutation.isPending}
-          size='sm'
-          intent='ghost'
-          className='flex items-center justify-center gap-1'
-        >
-          <HiTrash />
-          Удалить
-        </Button>
+        {infoQuery.data.canDelete && (
+          <Button
+            type='button'
+            onPress={() => deleteMutation.mutate({ ids: table.getSelectedRowModel().rows.map((v) => v.original.id) })}
+            isDisabled={table.getSelectedRowModel().rows.length === 0 || deleteMutation.isPending}
+            size='sm'
+            intent='ghost'
+            className='flex items-center justify-center gap-1'
+          >
+            <HiTrash />
+            Удалить
+          </Button>
+        )}
       </div>
       <div className='w-min min-w-2xl'>
         <DataTable table={table} />
