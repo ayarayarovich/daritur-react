@@ -44,9 +44,7 @@ export const getEmployee = async (payload: { id: number }) => {
 }
 
 export const deleteEmployees = async (payload: { ids: number[] }) => {
-  for (const id of payload.ids) {
-    await Axios.privateClient.delete(`/react-admin/staffs/${id}`)
-  }
+  await Promise.all(payload.ids.map((id) => Axios.privateClient.delete(`/react-admin/staffs/${id}`)))
 }
 
 export const getOffices = async (payload: { offset: number; limit: number; search?: string }) => {
