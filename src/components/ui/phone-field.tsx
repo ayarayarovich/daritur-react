@@ -1,5 +1,6 @@
 import { ForwardedRef, forwardRef } from 'react'
 import { useObjectRef, useTextField, type AriaTextFieldProps } from 'react-aria'
+import PhoneInput from 'react-phone-number-input/input'
 
 import { twMergifyCva } from '@/lib/utils'
 import { cva, VariantProps } from 'class-variance-authority'
@@ -52,7 +53,7 @@ const inputCva = twMergifyCva(
 
 type Variants = VariantProps<typeof labelCva> & VariantProps<typeof boxCva> & VariantProps<typeof inputCva>
 
-const TextField = forwardRef(
+const PhoneField = forwardRef(
   ({ intent = 'primary', size = 'md', ...props }: AriaTextFieldProps & Variants, ref: ForwardedRef<HTMLInputElement>) => {
     const { label } = props
     const objRef = useObjectRef(ref)
@@ -61,7 +62,21 @@ const TextField = forwardRef(
     return (
       <div>
         <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>
-          <input className={inputCva({ intent, size, className: 'peer' })} {...inputProps} placeholder='' ref={ref} />
+          <PhoneInput
+            className={inputCva({ intent, size, className: 'peer' })}
+            value={inputProps.value?.toString() || ''}
+            onChange={(value) => {
+              if (inputProps.onChange) {
+                inputProps.onChange({
+                  target: {
+                    value: value?.toString() || '',
+                  },
+                } as never)
+              }
+            }}
+            placeholder=''
+            ref={ref}
+          />
           <label className={labelCva({ intent, size, className: 'hidden peer-placeholder-shown:block' })} {...labelProps}>
             {label}
           </label>
@@ -81,4 +96,4 @@ const TextField = forwardRef(
   },
 )
 
-export default TextField
+export default PhoneField

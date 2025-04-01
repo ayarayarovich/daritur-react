@@ -7,6 +7,7 @@ import Button from '@/components/ui/button'
 import Checkbox from '@/components/ui/checkbox'
 import TextField from '@/components/ui/text-field'
 import { extractErrorMessageFromAPIError } from '@/lib/utils'
+import { CreateStaffModal } from '@/modals'
 import { StaffService } from '@/services'
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
@@ -218,6 +219,8 @@ function Offices() {
 function Employees() {
   const searchParams = Route.useSearch()
 
+  const createStaffModal = CreateStaffModal.use()
+
   const navigate = Route.useNavigate()
   const setPaggination = useCallback(
     (p: { pageIndex: number; pageSize: number }) => {
@@ -341,7 +344,13 @@ function Employees() {
       <div className='flex items-center gap-4'>
         <div>Сотрудники ({listQuery.data?.count ?? 0})</div>
         {infoQuery.data.canCreate && (
-          <Button type='button' size='sm' intent='warning' className='flex items-center justify-center gap-1'>
+          <Button
+            type='button'
+            onPress={() => createStaffModal.open()}
+            size='sm'
+            intent='warning'
+            className='flex items-center justify-center gap-1'
+          >
             <HiPlus />
             Добавить сотрудника
           </Button>

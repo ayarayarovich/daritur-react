@@ -39,3 +39,7 @@ export function extractErrorMessageFromAPIError(err: unknown) {
     )
   }
 }
+
+export function requiredFieldRefine() {
+  return [(val: unknown) => !!val, 'Обязательное поле'] as const
+}

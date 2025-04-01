@@ -30,6 +30,7 @@ function RouteComponent() {
           {menuQuery.data.map((v) => (
             <Link
               to={`/${v.path}` as never}
+              key={v.path}
               className='data-[status=active]:text-gray-1 flex items-center gap-1 px-5 py-1 text-sm text-white data-[status=active]:bg-white'
             >
               {v.iconUrl && <img className='size-[1em]' src={v.iconUrl} alt={v.title} />}

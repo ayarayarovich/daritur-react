@@ -87,3 +87,16 @@ export const getOfficesInfo = async () => {
   const data = schema.parse(response.data)
   return data
 }
+
+export const createEmployee = async (payload: {
+  email: string
+  password: string
+  middleName: string
+  firstName: string
+  lastName: string
+  phone: string
+  officeId?: number
+}) => {
+  const response = await Axios.privateClient.post('/react-admin/staffs', payload)
+  return response.data
+}

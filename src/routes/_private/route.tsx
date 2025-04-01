@@ -1,10 +1,13 @@
+import { CreateStaffModal } from '@/modals'
 import { AuthService } from '@/services'
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { ModalRenderer } from '@ayarayarovich/react-modals'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
 import { Query } from '@/shared'
 import Queries from '@/shared/queries'
 
 export const Route = createFileRoute('/_private')({
+  component: RouteComponent,
   beforeLoad: async () => {
     const tokens = AuthService.getUserData()
     const isSignedIn = !!tokens?.accessToken
@@ -16,3 +19,13 @@ export const Route = createFileRoute('/_private')({
     await Query.client.fetchQuery(Queries.me.self)
   },
 })
+
+function RouteComponent() {
+  return (
+    <>
+      <Outlet />
+
+      <ModalRenderer Component={CreateStaffModal.Component} />
+    </>
+  )
+}
