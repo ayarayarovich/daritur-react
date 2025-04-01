@@ -17,6 +17,10 @@ const employees = createQueryKeys('employees', {
     queryKey: [{ config }],
     queryFn: () => StaffService.getEmployees(config),
   }),
+  detail: (config: { id: number }) => ({
+    queryKey: [{ config }],
+    queryFn: () => StaffService.getEmployee(config),
+  }),
   info: {
     queryKey: null,
     queryFn: StaffService.getStaffsInfo,

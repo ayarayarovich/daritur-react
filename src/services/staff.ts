@@ -28,6 +28,21 @@ export const getEmployees = async (payload: { offset: number; limit: number; off
   return data
 }
 
+export const getEmployee = async (payload: { id: number }) => {
+  const response = await Axios.privateClient.get(`/react-admin/staffs/${payload.id}`)
+  const schema = z.object({
+    id: z.number(),
+    email: z.string(),
+    middleName: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    phone: z.string(),
+    role: z.string(),
+  })
+  const data = schema.parse(response.data)
+  return data
+}
+
 export const deleteEmployees = async (payload: { ids: number[] }) => {
   for (const id of payload.ids) {
     await Axios.privateClient.delete(`/react-admin/staffs/${id}`)
@@ -98,5 +113,19 @@ export const createEmployee = async (payload: {
   officeId?: number
 }) => {
   const response = await Axios.privateClient.post('/react-admin/staffs', payload)
+  return response.data
+}
+
+export const updateEmployee = async (payload: {
+  id: number
+  email: string
+  middleName: string
+  firstName: string
+  lastName: string
+  phone: string
+  officeId?: number
+  password?: string
+}) => {
+  const response = await Axios.privateClient.put(`/react-admin/staffs/${payload.id}`, payload)
   return response.data
 }

@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { HiPlus, HiTrash } from 'react-icons/hi2'
+import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2'
 
 import { DataTable } from '@/components/data-table'
 import Button from '@/components/ui/button'
 import Checkbox from '@/components/ui/checkbox'
 import TextField from '@/components/ui/text-field'
 import { extractErrorMessageFromAPIError } from '@/lib/utils'
-import { CreateStaffModal } from '@/modals'
+import { CreateStaffModal, UpdateStaffModal } from '@/modals'
 import { StaffService } from '@/services'
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
@@ -220,6 +220,7 @@ function Employees() {
   const searchParams = Route.useSearch()
 
   const createStaffModal = CreateStaffModal.use()
+  const updateStaffModal = UpdateStaffModal.use()
 
   const navigate = Route.useNavigate()
   const setPaggination = useCallback(
@@ -299,6 +300,20 @@ function Employees() {
       size: 9999,
     }),
   ]
+  if (infoQuery.data.canEdit) {
+    columns.push(
+      columnHelper.display({
+        id: 'edit',
+        cell: ({ row }) => (
+          <Button type='button' size='xs' intent='ghost' onPress={() => updateStaffModal.open({ staffId: row.original.id })}>
+            <HiPencil />
+          </Button>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      }),
+    )
+  }
 
   const table = useReactTable({
     columns,
