@@ -17,6 +17,7 @@ import { Route as PrivateLayoutRouteImport } from './../routes/_private/_layout/
 import { Route as PublicLoginIndexImport } from './../routes/_public/login/index'
 import { Route as PrivateLayoutIndexImport } from './../routes/_private/_layout/index'
 import { Route as PrivateLayoutStaffsImport } from './../routes/_private/_layout/staffs'
+import { Route as PrivateLayoutOfficesImport } from './../routes/_private/_layout/offices'
 
 // Create/Update Routes
 
@@ -53,6 +54,12 @@ const PrivateLayoutStaffsRoute = PrivateLayoutStaffsImport.update({
   getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
 
+const PrivateLayoutOfficesRoute = PrivateLayoutOfficesImport.update({
+  id: '/offices',
+  path: '/offices',
+  getParentRoute: () => PrivateLayoutRouteRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -77,6 +84,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof PrivateLayoutRouteImport
       parentRoute: typeof PrivateRouteImport
+    }
+    '/_private/_layout/offices': {
+      id: '/_private/_layout/offices'
+      path: '/offices'
+      fullPath: '/offices'
+      preLoaderRoute: typeof PrivateLayoutOfficesImport
+      parentRoute: typeof PrivateLayoutRouteImport
     }
     '/_private/_layout/staffs': {
       id: '/_private/_layout/staffs'
@@ -105,11 +119,13 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface PrivateLayoutRouteRouteChildren {
+  PrivateLayoutOfficesRoute: typeof PrivateLayoutOfficesRoute
   PrivateLayoutStaffsRoute: typeof PrivateLayoutStaffsRoute
   PrivateLayoutIndexRoute: typeof PrivateLayoutIndexRoute
 }
 
 const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
+  PrivateLayoutOfficesRoute: PrivateLayoutOfficesRoute,
   PrivateLayoutStaffsRoute: PrivateLayoutStaffsRoute,
   PrivateLayoutIndexRoute: PrivateLayoutIndexRoute,
 }
@@ -143,6 +159,7 @@ const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '': typeof PrivateLayoutRouteRouteWithChildren
+  '/offices': typeof PrivateLayoutOfficesRoute
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
@@ -150,6 +167,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '': typeof PublicRouteRouteWithChildren
+  '/offices': typeof PrivateLayoutOfficesRoute
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
@@ -160,6 +178,7 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
   '/_private/_layout': typeof PrivateLayoutRouteRouteWithChildren
+  '/_private/_layout/offices': typeof PrivateLayoutOfficesRoute
   '/_private/_layout/staffs': typeof PrivateLayoutStaffsRoute
   '/_private/_layout/': typeof PrivateLayoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
@@ -167,14 +186,15 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/staffs' | '/' | '/login'
+  fullPaths: '' | '/offices' | '/staffs' | '/' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '' | '/staffs' | '/' | '/login'
+  to: '' | '/offices' | '/staffs' | '/' | '/login'
   id:
     | '__root__'
     | '/_private'
     | '/_public'
     | '/_private/_layout'
+    | '/_private/_layout/offices'
     | '/_private/_layout/staffs'
     | '/_private/_layout/'
     | '/_public/login/'
@@ -221,9 +241,14 @@ export const routeTree = rootRoute
       "filePath": "_private/_layout/route.tsx",
       "parent": "/_private",
       "children": [
+        "/_private/_layout/offices",
         "/_private/_layout/staffs",
         "/_private/_layout/"
       ]
+    },
+    "/_private/_layout/offices": {
+      "filePath": "_private/_layout/offices.tsx",
+      "parent": "/_private/_layout"
     },
     "/_private/_layout/staffs": {
       "filePath": "_private/_layout/staffs.tsx",

@@ -68,7 +68,7 @@ export default function CreateStaffModalComponent() {
       {() => (
         <form onSubmit={onSubmit} className='flex flex-col items-stretch p-6'>
           <div className='relative mb-8'>
-            <Heading slot='title'>Добавить сотрудника</Heading>
+            <Heading slot='title'>Добавить офис</Heading>
           </div>
           <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
             <p>Название</p>
