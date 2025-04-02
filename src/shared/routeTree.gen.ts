@@ -18,6 +18,7 @@ import { Route as PublicLoginIndexImport } from './../routes/_public/login/index
 import { Route as PrivateLayoutIndexImport } from './../routes/_private/_layout/index'
 import { Route as PrivateLayoutStaffsImport } from './../routes/_private/_layout/staffs'
 import { Route as PrivateLayoutOfficesImport } from './../routes/_private/_layout/offices'
+import { Route as PrivateLayoutExcursionsImport } from './../routes/_private/_layout/excursions'
 
 // Create/Update Routes
 
@@ -60,6 +61,12 @@ const PrivateLayoutOfficesRoute = PrivateLayoutOfficesImport.update({
   getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
 
+const PrivateLayoutExcursionsRoute = PrivateLayoutExcursionsImport.update({
+  id: '/excursions',
+  path: '/excursions',
+  getParentRoute: () => PrivateLayoutRouteRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -84,6 +91,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof PrivateLayoutRouteImport
       parentRoute: typeof PrivateRouteImport
+    }
+    '/_private/_layout/excursions': {
+      id: '/_private/_layout/excursions'
+      path: '/excursions'
+      fullPath: '/excursions'
+      preLoaderRoute: typeof PrivateLayoutExcursionsImport
+      parentRoute: typeof PrivateLayoutRouteImport
     }
     '/_private/_layout/offices': {
       id: '/_private/_layout/offices'
@@ -119,12 +133,14 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface PrivateLayoutRouteRouteChildren {
+  PrivateLayoutExcursionsRoute: typeof PrivateLayoutExcursionsRoute
   PrivateLayoutOfficesRoute: typeof PrivateLayoutOfficesRoute
   PrivateLayoutStaffsRoute: typeof PrivateLayoutStaffsRoute
   PrivateLayoutIndexRoute: typeof PrivateLayoutIndexRoute
 }
 
 const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
+  PrivateLayoutExcursionsRoute: PrivateLayoutExcursionsRoute,
   PrivateLayoutOfficesRoute: PrivateLayoutOfficesRoute,
   PrivateLayoutStaffsRoute: PrivateLayoutStaffsRoute,
   PrivateLayoutIndexRoute: PrivateLayoutIndexRoute,
@@ -159,6 +175,7 @@ const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '': typeof PrivateLayoutRouteRouteWithChildren
+  '/excursions': typeof PrivateLayoutExcursionsRoute
   '/offices': typeof PrivateLayoutOfficesRoute
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
@@ -167,6 +184,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '': typeof PublicRouteRouteWithChildren
+  '/excursions': typeof PrivateLayoutExcursionsRoute
   '/offices': typeof PrivateLayoutOfficesRoute
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
@@ -178,6 +196,7 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteRouteWithChildren
   '/_public': typeof PublicRouteRouteWithChildren
   '/_private/_layout': typeof PrivateLayoutRouteRouteWithChildren
+  '/_private/_layout/excursions': typeof PrivateLayoutExcursionsRoute
   '/_private/_layout/offices': typeof PrivateLayoutOfficesRoute
   '/_private/_layout/staffs': typeof PrivateLayoutStaffsRoute
   '/_private/_layout/': typeof PrivateLayoutIndexRoute
@@ -186,14 +205,15 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/offices' | '/staffs' | '/' | '/login'
+  fullPaths: '' | '/excursions' | '/offices' | '/staffs' | '/' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '' | '/offices' | '/staffs' | '/' | '/login'
+  to: '' | '/excursions' | '/offices' | '/staffs' | '/' | '/login'
   id:
     | '__root__'
     | '/_private'
     | '/_public'
     | '/_private/_layout'
+    | '/_private/_layout/excursions'
     | '/_private/_layout/offices'
     | '/_private/_layout/staffs'
     | '/_private/_layout/'
@@ -241,10 +261,15 @@ export const routeTree = rootRoute
       "filePath": "_private/_layout/route.tsx",
       "parent": "/_private",
       "children": [
+        "/_private/_layout/excursions",
         "/_private/_layout/offices",
         "/_private/_layout/staffs",
         "/_private/_layout/"
       ]
+    },
+    "/_private/_layout/excursions": {
+      "filePath": "_private/_layout/excursions.tsx",
+      "parent": "/_private/_layout"
     },
     "/_private/_layout/offices": {
       "filePath": "_private/_layout/offices.tsx",
