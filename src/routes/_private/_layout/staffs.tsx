@@ -7,7 +7,7 @@ import Button from '@/components/ui/button'
 import Checkbox from '@/components/ui/checkbox'
 import TextField from '@/components/ui/text-field'
 import { extractErrorMessageFromAPIError } from '@/lib/utils'
-import { CreateStaffModal, UpdateStaffModal } from '@/modals'
+import { CreateOfficeModal, CreateStaffModal, UpdateOfficeModal, UpdateStaffModal } from '@/modals'
 import { StaffService } from '@/services'
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
@@ -60,6 +60,9 @@ function RouteComponent() {
 
 function Offices() {
   const searchParams = Route.useSearch()
+
+  const createOfficeModal = CreateOfficeModal.use()
+  const updateOfficeModal = UpdateOfficeModal.use()
 
   const navigate = Route.useNavigate()
   const setPaggination = useCallback(
@@ -140,6 +143,20 @@ function Offices() {
       size: 9999,
     }),
   ]
+  if (infoQuery.data.canEdit) {
+    columns.push(
+      columnHelper.display({
+        id: 'edit',
+        cell: ({ row }) => (
+          <Button type='button' size='xs' intent='ghost' onPress={() => updateOfficeModal.open({ officeId: row.original.id })}>
+            <HiPencil />
+          </Button>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      }),
+    )
+  }
 
   const table = useReactTable({
     columns,
@@ -185,7 +202,13 @@ function Offices() {
       <div className='flex items-center gap-4'>
         <div>Офисы ({listQuery.data?.count ?? 0})</div>
         {infoQuery.data.canCreate && (
-          <Button type='button' size='sm' intent='warning' className='flex items-center justify-center gap-1'>
+          <Button
+            type='button'
+            size='sm'
+            onPress={() => createOfficeModal.open()}
+            intent='warning'
+            className='flex items-center justify-center gap-1'
+          >
             <HiPlus />
             Добавить офис
           </Button>

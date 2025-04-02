@@ -1,4 +1,4 @@
-import { CreateStaffModal, UpdateStaffModal } from '@/modals'
+import { CreateOfficeModal, CreateStaffModal, UpdateOfficeModal, UpdateStaffModal } from '@/modals'
 import { AuthService } from '@/services'
 import { ModalRenderer } from '@ayarayarovich/react-modals'
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
@@ -27,6 +27,9 @@ function RouteComponent() {
 
       <ModalRenderer Component={CreateStaffModal.Component} />
       <ModalRenderer Component={UpdateStaffModal.Component} />
+
+      <ModalRenderer Component={CreateOfficeModal.Component} />
+      <ModalRenderer Component={UpdateOfficeModal.Component} />
     </>
   )
 }

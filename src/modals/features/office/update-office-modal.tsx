@@ -7,6 +7,7 @@ import Button from '@/components/ui/button'
 import PhoneField from '@/components/ui/phone-field'
 import TextField from '@/components/ui/text-field'
 import { requiredFieldRefine } from '@/lib/utils'
+import BaseModal from '@/modals/base-modal'
 import { StaffService } from '@/services'
 import { useModalInstance } from '@ayarayarovich/react-modals'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,44 +17,37 @@ import { z } from 'zod'
 import { Query } from '@/shared'
 import Queries from '@/shared/queries'
 
-import BaseModal from './base-modal'
-
-export type Data = never
+export type Data = {
+  officeId: number
+}
 
 const formSchema = z.object({
-  firstName: z.string().refine(...requiredFieldRefine()),
-  lastName: z.string().refine(...requiredFieldRefine()),
-  middleName: z.string().refine(...requiredFieldRefine()),
+  id: z.number(),
+  name: z.string().refine(...requiredFieldRefine()),
+  description: z.string().refine(...requiredFieldRefine()),
   phone: z
     .string()
     .refine(...requiredFieldRefine())
     .refine(isValidPhoneNumber, 'Некорректный номер'),
   email: z.string().refine(...requiredFieldRefine()),
-  password: z.string().refine(...requiredFieldRefine()),
-  // officeId: z.number(),
+  inn: z.string().refine(...requiredFieldRefine()),
+  cityId: z.number().refine(...requiredFieldRefine()),
 })
 
-export default function CreateStaffModalComponent() {
-  const { isOpen, close } = useModalInstance<Data>()
+export default function UpdateStaffModalComponent() {
+  const { isOpen, close, data } = useModalInstance<Data>()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      password: '',
-      phone: '',
-    },
+    defaultValues: () => Query.client.fetchQuery(Queries.offices.detail({ id: data.officeId })),
   })
 
   const mutation = useMutation({
-    mutationFn: StaffService.createEmployee,
+    mutationFn: StaffService.updateOffice,
     onSuccess: () => {
       toast.success('Успешно')
       Query.client.invalidateQueries({
-        queryKey: Queries.employees._def,
+        queryKey: Queries.offices._def,
       })
     },
     onError: () => {
@@ -70,17 +64,17 @@ export default function CreateStaffModalComponent() {
       {() => (
         <form onSubmit={onSubmit} className='flex flex-col items-stretch p-6'>
           <div className='relative mb-8'>
-            <Heading slot='title'>Добавить сотрудника</Heading>
+            <Heading slot='title'>Изменить офис №{data.officeId}</Heading>
           </div>
           <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
-            <p>Имя</p>
+            <p>Название</p>
             <Controller
               control={form.control}
-              name='firstName'
+              name='name'
               render={({ field, fieldState }) => (
                 <TextField
                   size='sm'
-                  label='Имя'
+                  label='Название'
                   intent='primary'
                   {...field}
                   errorMessage={fieldState.error?.message}
@@ -89,14 +83,14 @@ export default function CreateStaffModalComponent() {
               )}
             />
 
-            <p>Фамилия</p>
+            <p>Описание</p>
             <Controller
               control={form.control}
-              name='lastName'
+              name='description'
               render={({ field, fieldState }) => (
                 <TextField
                   size='sm'
-                  label='Фамилия'
+                  label='Описание'
                   intent='primary'
                   {...field}
                   errorMessage={fieldState.error?.message}
@@ -105,14 +99,14 @@ export default function CreateStaffModalComponent() {
               )}
             />
 
-            <p>Отчество</p>
+            <p>ИНН</p>
             <Controller
               control={form.control}
-              name='middleName'
+              name='inn'
               render={({ field, fieldState }) => (
                 <TextField
                   size='sm'
-                  label='Отчество'
+                  label='ИНН'
                   intent='primary'
                   {...field}
                   errorMessage={fieldState.error?.message}
@@ -152,31 +146,20 @@ export default function CreateStaffModalComponent() {
                 />
               )}
             />
-
-            <p>Пароль</p>
-            <Controller
-              control={form.control}
-              name='password'
-              render={({ field, fieldState }) => (
-                <TextField
-                  size='sm'
-                  label='Пароль'
-                  type='password'
-                  intent='primary'
-                  {...field}
-                  errorMessage={fieldState.error?.message}
-                  isInvalid={fieldState.invalid}
-                />
-              )}
-            />
           </div>
           <div className='flex items-center justify-end gap-2'>
             {form.formState.isDirty && (
-              <Button size='sm' type='button' intent='ghost' isDisabled={form.formState.isSubmitting} onPress={() => form.reset()}>
+              <Button
+                size='sm'
+                type='button'
+                intent='ghost'
+                isDisabled={form.formState.isSubmitting || form.formState.isLoading}
+                onPress={() => form.reset()}
+              >
                 Сбросить
               </Button>
             )}
-            <Button size='sm' type='submit' intent='primary' isDisabled={form.formState.isSubmitting}>
+            <Button size='sm' type='submit' intent='primary' isDisabled={form.formState.isSubmitting || form.formState.isLoading}>
               Сохранить
             </Button>
           </div>

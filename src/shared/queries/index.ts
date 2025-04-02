@@ -32,6 +32,10 @@ const offices = createQueryKeys('offices', {
     queryKey: [{ config }],
     queryFn: () => StaffService.getOffices(config),
   }),
+  detail: (config: { id: number }) => ({
+    queryKey: [{ config }],
+    queryFn: () => StaffService.getOffice(config),
+  }),
   info: {
     queryKey: null,
     queryFn: StaffService.getOfficesInfo,

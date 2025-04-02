@@ -7,6 +7,7 @@ import Button from '@/components/ui/button'
 import PhoneField from '@/components/ui/phone-field'
 import TextField from '@/components/ui/text-field'
 import { requiredFieldRefine } from '@/lib/utils'
+import BaseModal from '@/modals/base-modal'
 import { StaffService } from '@/services'
 import { useModalInstance } from '@ayarayarovich/react-modals'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -15,8 +16,6 @@ import { z } from 'zod'
 
 import { Query } from '@/shared'
 import Queries from '@/shared/queries'
-
-import BaseModal from './base-modal'
 
 export type Data = {
   staffId: number
@@ -66,7 +65,7 @@ export default function UpdateStaffModalComponent() {
       {() => (
         <form onSubmit={onSubmit} className='flex flex-col items-stretch p-6'>
           <div className='relative mb-8'>
-            <Heading slot='title'>Изменить сотрудника</Heading>
+            <Heading slot='title'>Изменить сотрудника №{data.staffId}</Heading>
           </div>
           <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
             <p>Имя</p>

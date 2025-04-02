@@ -43,6 +43,30 @@ export const getEmployee = async (payload: { id: number }) => {
   return data
 }
 
+export const getOffice = async (payload: { id: number }) => {
+  const response = await Axios.privateClient.get(`/react-admin/offices/${payload.id}`)
+  const schema = z.object({
+    id: z.number(),
+    name: z.string(),
+    phone: z.string(),
+    cityId: z.number(),
+    cityName: z.string(),
+    email: z.string(),
+    description: z.string(),
+    inn: z.string(),
+    staffs: z
+      .object({
+        id: z.number(),
+        fullName: z.string(),
+      })
+      .array()
+      .nullish()
+      .transform((v) => v ?? []),
+  })
+  const data = schema.parse(response.data)
+  return data
+}
+
 export const deleteEmployees = async (payload: { ids: number[] }) => {
   await Promise.all(payload.ids.map((id) => Axios.privateClient.delete(`/react-admin/staffs/${id}`)))
 }
@@ -125,5 +149,30 @@ export const updateEmployee = async (payload: {
   password?: string
 }) => {
   const response = await Axios.privateClient.put(`/react-admin/staffs/${payload.id}`, payload)
+  return response.data
+}
+
+export const createOffice = async (payload: {
+  email: string
+  name: string
+  description: string
+  phone: string
+  inn: string
+  cityId?: number
+}) => {
+  const response = await Axios.privateClient.post('/react-admin/offices', payload)
+  return response.data
+}
+
+export const updateOffice = async (payload: {
+  id: number
+  email: string
+  name: string
+  description: string
+  phone: string
+  inn: string
+  cityId?: number
+}) => {
+  const response = await Axios.privateClient.put(`/react-admin/offices/${payload.id}`, payload)
   return response.data
 }
