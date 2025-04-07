@@ -177,7 +177,7 @@ function RouteComponent() {
     <div className='flex flex-col items-stretch gap-16 px-5 py-22'>
       <div className='flex flex-col items-stretch gap-3'>
         <div className='flex items-center gap-4'>
-          <div>Сотрудники ({listQuery.data?.count ?? 0})</div>
+          <div className='text-nowrap'>Сотрудники ({listQuery.data?.count ?? 0})</div>
           {infoQuery.data.canCreate && (
             <Button
               type='button'

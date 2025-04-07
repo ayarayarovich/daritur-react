@@ -115,3 +115,27 @@ export const updateExcursion = async (payload: {
   })
   return response.data
 }
+
+export const getCities = async () => {
+  const response = await Axios.privateClient.get('/react-admin/cities')
+  const schema = z
+    .object({
+      id: z.number(),
+      name: z.string(),
+    })
+    .array()
+  const data = schema.parse(response.data)
+  return data
+}
+
+export const getCountries = async () => {
+  const response = await Axios.privateClient.get('/react-admin/countries')
+  const schema = z
+    .object({
+      id: z.number(),
+      name: z.string(),
+    })
+    .array()
+  const data = schema.parse(response.data)
+  return data
+}

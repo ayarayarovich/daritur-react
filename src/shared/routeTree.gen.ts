@@ -19,6 +19,7 @@ import { Route as PrivateLayoutIndexImport } from './../routes/_private/_layout/
 import { Route as PrivateLayoutStaffsImport } from './../routes/_private/_layout/staffs'
 import { Route as PrivateLayoutOfficesImport } from './../routes/_private/_layout/offices'
 import { Route as PrivateLayoutExcursionsImport } from './../routes/_private/_layout/excursions'
+import { Route as PrivateLayoutExcursionsNewImport } from './../routes/_private/_layout/excursions_.new'
 
 // Create/Update Routes
 
@@ -66,6 +67,14 @@ const PrivateLayoutExcursionsRoute = PrivateLayoutExcursionsImport.update({
   path: '/excursions',
   getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
+
+const PrivateLayoutExcursionsNewRoute = PrivateLayoutExcursionsNewImport.update(
+  {
+    id: '/excursions_/new',
+    path: '/excursions/new',
+    getParentRoute: () => PrivateLayoutRouteRoute,
+  } as any,
+)
 
 // Populate the FileRoutesByPath interface
 
@@ -127,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginIndexImport
       parentRoute: typeof PublicRouteImport
     }
+    '/_private/_layout/excursions_/new': {
+      id: '/_private/_layout/excursions_/new'
+      path: '/excursions/new'
+      fullPath: '/excursions/new'
+      preLoaderRoute: typeof PrivateLayoutExcursionsNewImport
+      parentRoute: typeof PrivateLayoutRouteImport
+    }
   }
 }
 
@@ -137,6 +153,7 @@ interface PrivateLayoutRouteRouteChildren {
   PrivateLayoutOfficesRoute: typeof PrivateLayoutOfficesRoute
   PrivateLayoutStaffsRoute: typeof PrivateLayoutStaffsRoute
   PrivateLayoutIndexRoute: typeof PrivateLayoutIndexRoute
+  PrivateLayoutExcursionsNewRoute: typeof PrivateLayoutExcursionsNewRoute
 }
 
 const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
@@ -144,6 +161,7 @@ const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
   PrivateLayoutOfficesRoute: PrivateLayoutOfficesRoute,
   PrivateLayoutStaffsRoute: PrivateLayoutStaffsRoute,
   PrivateLayoutIndexRoute: PrivateLayoutIndexRoute,
+  PrivateLayoutExcursionsNewRoute: PrivateLayoutExcursionsNewRoute,
 }
 
 const PrivateLayoutRouteRouteWithChildren =
@@ -180,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
+  '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
 }
 
 export interface FileRoutesByTo {
@@ -189,6 +208,7 @@ export interface FileRoutesByTo {
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
+  '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
 }
 
 export interface FileRoutesById {
@@ -201,13 +221,28 @@ export interface FileRoutesById {
   '/_private/_layout/staffs': typeof PrivateLayoutStaffsRoute
   '/_private/_layout/': typeof PrivateLayoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
+  '/_private/_layout/excursions_/new': typeof PrivateLayoutExcursionsNewRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/excursions' | '/offices' | '/staffs' | '/' | '/login'
+  fullPaths:
+    | ''
+    | '/excursions'
+    | '/offices'
+    | '/staffs'
+    | '/'
+    | '/login'
+    | '/excursions/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '' | '/excursions' | '/offices' | '/staffs' | '/' | '/login'
+  to:
+    | ''
+    | '/excursions'
+    | '/offices'
+    | '/staffs'
+    | '/'
+    | '/login'
+    | '/excursions/new'
   id:
     | '__root__'
     | '/_private'
@@ -218,6 +253,7 @@ export interface FileRouteTypes {
     | '/_private/_layout/staffs'
     | '/_private/_layout/'
     | '/_public/login/'
+    | '/_private/_layout/excursions_/new'
   fileRoutesById: FileRoutesById
 }
 
@@ -264,7 +300,8 @@ export const routeTree = rootRoute
         "/_private/_layout/excursions",
         "/_private/_layout/offices",
         "/_private/_layout/staffs",
-        "/_private/_layout/"
+        "/_private/_layout/",
+        "/_private/_layout/excursions_/new"
       ]
     },
     "/_private/_layout/excursions": {
@@ -286,6 +323,10 @@ export const routeTree = rootRoute
     "/_public/login/": {
       "filePath": "_public/login/index.tsx",
       "parent": "/_public"
+    },
+    "/_private/_layout/excursions_/new": {
+      "filePath": "_private/_layout/excursions_.new.tsx",
+      "parent": "/_private/_layout"
     }
   }
 }

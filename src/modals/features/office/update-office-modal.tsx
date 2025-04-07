@@ -11,7 +11,7 @@ import BaseModal from '@/modals/base-modal'
 import { StaffService } from '@/services'
 import { useModalInstance } from '@ayarayarovich/react-modals'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
 import { Query } from '@/shared'
@@ -37,18 +37,24 @@ const formSchema = z.object({
 export default function UpdateStaffModalComponent() {
   const { isOpen, close, data } = useModalInstance<Data>()
 
+  const detailQueryDescriptor = Queries.offices.detail({ id: data.officeId })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: () => Query.client.fetchQuery(Queries.offices.detail({ id: data.officeId })),
+    defaultValues: () => Query.client.fetchQuery(detailQueryDescriptor),
   })
+
+  const detailQuery = useQuery(detailQueryDescriptor)
+  const hasAPISentWrongData = detailQuery.isError
 
   const mutation = useMutation({
     mutationFn: StaffService.updateOffice,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Успешно')
-      Query.client.invalidateQueries({
+      await Query.client.invalidateQueries({
         queryKey: Queries.offices._def,
       })
+      close()
     },
     onError: () => {
       toast.error('Ошибка')
@@ -66,6 +72,13 @@ export default function UpdateStaffModalComponent() {
           <div className='relative mb-8'>
             <Heading slot='title'>Изменить офис №{data.officeId}</Heading>
           </div>
+          {hasAPISentWrongData && (
+            <div className='mb-4 rounded-lg bg-red-400/10 px-4 py-2'>
+              <p className='text-sm text-red-400'>
+                <span className='font-semibold'>Внимание!</span> Некорректный формат данных с API
+              </p>
+            </div>
+          )}
           <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
             <p>Название</p>
             <Controller

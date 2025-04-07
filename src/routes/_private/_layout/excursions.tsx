@@ -171,9 +171,15 @@ function RouteComponent() {
     <div className='flex flex-col items-stretch gap-16 px-5 py-22'>
       <div className='flex flex-col items-stretch gap-3'>
         <div className='flex items-center gap-4'>
-          <div>Экскурсии ({listQuery.data?.count ?? 0})</div>
+          <div className='text-nowrap'>Экскурсии ({listQuery.data?.count ?? 0})</div>
           {infoQuery.data.canCreate && (
-            <Button type='button' size='sm' intent='warning' className='flex items-center justify-center gap-1'>
+            <Button
+              type='button'
+              onPress={() => navigate({ to: '/excursions/new' })}
+              size='sm'
+              intent='warning'
+              className='flex items-center justify-center gap-1'
+            >
               <HiPlus />
               Добавить экскурсию
             </Button>

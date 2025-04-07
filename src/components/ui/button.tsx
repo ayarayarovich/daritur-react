@@ -5,7 +5,7 @@ import { twMergifyCva } from '@/lib/utils'
 import { cva, VariantProps } from 'class-variance-authority'
 
 const buttonCva = twMergifyCva(
-  cva('text-center leading-none! rounded-lg transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-default', {
+  cva('text-center leading-none! text-nowrap rounded-lg transition-opacity disabled:opacity-50 cursor-pointer disabled:cursor-default', {
     variants: {
       intent: {
         primary: 'text-white bg-teal-500',

@@ -21,7 +21,7 @@ function RouteComponent() {
 
   return (
     <div className='pl-44'>
-      <div className='fixed inset-y-0 left-0 flex h-full w-44 flex-col items-stretch overflow-auto bg-teal-700 py-5 text-white'>
+      <div className='fixed inset-y-0 left-0 z-20 flex h-full w-44 flex-col items-stretch overflow-auto bg-teal-700 py-5 text-white'>
         <div className='mb-4 px-5'>
           <img src='/logo.svg' alt='logo' className='w-full' />
         </div>

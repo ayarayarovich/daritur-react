@@ -32,6 +32,10 @@ const offices = createQueryKeys('offices', {
     queryKey: [{ config }],
     queryFn: () => StaffService.getOffices(config),
   }),
+  all: {
+    queryKey: null,
+    queryFn: () => StaffService.getOffices({ offset: 0, limit: 999999 }),
+  },
   detail: (config: { id: number }) => ({
     queryKey: [{ config }],
     queryFn: () => StaffService.getOffice(config),
@@ -54,6 +58,14 @@ const excursions = createQueryKeys('excursions', {
   info: {
     queryKey: null,
     queryFn: ExcursionsService.getExcursionsInfo,
+  },
+  cities: {
+    queryKey: null,
+    queryFn: ExcursionsService.getCities,
+  },
+  countries: {
+    queryKey: null,
+    queryFn: ExcursionsService.getCountries,
   },
 })
 

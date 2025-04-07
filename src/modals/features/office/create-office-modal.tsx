@@ -48,11 +48,12 @@ export default function CreateStaffModalComponent() {
 
   const mutation = useMutation({
     mutationFn: StaffService.createOffice,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Успешно')
-      Query.client.invalidateQueries({
-        queryKey: Queries.employees._def,
+      await Query.client.invalidateQueries({
+        queryKey: Queries.offices._def,
       })
+      close()
     },
     onError: () => {
       toast.error('Ошибка')

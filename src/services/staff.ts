@@ -38,6 +38,7 @@ export const getEmployee = async (payload: { id: number }) => {
     lastName: z.string(),
     phone: z.string(),
     role: z.string(),
+    officeId: z.number(),
   })
   const data = schema.parse(response.data)
   return data

@@ -2,16 +2,19 @@ import { Heading } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { isValidPhoneNumber } from 'react-phone-number-input'
+import { Item } from 'react-stately'
 
 import Button from '@/components/ui/button'
 import PhoneField from '@/components/ui/phone-field'
+import Select from '@/components/ui/select'
 import TextField from '@/components/ui/text-field'
 import { requiredFieldRefine } from '@/lib/utils'
 import BaseModal from '@/modals/base-modal'
 import { StaffService } from '@/services'
 import { useModalInstance } from '@ayarayarovich/react-modals'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { omit } from 'radashi'
 import { z } from 'zod'
 
 import { Query } from '@/shared'
@@ -32,24 +35,32 @@ const formSchema = z.object({
     .refine(isValidPhoneNumber, 'Некорректный номер'),
   email: z.string().refine(...requiredFieldRefine()),
   password: z.string().optional(),
-  // officeId: z.number(),
+  officeId: z.number().refine(...requiredFieldRefine()),
 })
 
 export default function UpdateStaffModalComponent() {
   const { isOpen, close, data } = useModalInstance<Data>()
 
+  const officesQuery = useQuery(Queries.offices.all)
+
+  const detailQueryDescriptor = Queries.employees.detail({ id: data.staffId })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: () => Query.client.fetchQuery(Queries.employees.detail({ id: data.staffId })),
+    defaultValues: () => Query.client.fetchQuery(detailQueryDescriptor),
   })
+
+  const detailQuery = useQuery(detailQueryDescriptor)
+  const hasAPISentWrongData = detailQuery.isError
 
   const mutation = useMutation({
     mutationFn: StaffService.updateEmployee,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Успешно')
-      Query.client.invalidateQueries({
+      await Query.client.invalidateQueries({
         queryKey: Queries.employees._def,
       })
+      close()
     },
     onError: () => {
       toast.error('Ошибка')
@@ -67,6 +78,13 @@ export default function UpdateStaffModalComponent() {
           <div className='relative mb-8'>
             <Heading slot='title'>Изменить сотрудника №{data.staffId}</Heading>
           </div>
+          {hasAPISentWrongData && (
+            <div className='mb-4 rounded-lg bg-red-400/10 px-4 py-2'>
+              <p className='text-sm text-red-400'>
+                <span className='font-semibold'>Внимание!</span> Некорректный формат данных с API
+              </p>
+            </div>
+          )}
           <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
             <p>Имя</p>
             <Controller
@@ -113,6 +131,28 @@ export default function UpdateStaffModalComponent() {
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />
+              )}
+            />
+
+            <p>Офис</p>
+            <Controller
+              control={form.control}
+              name='officeId'
+              render={({ field, fieldState }) => (
+                <Select
+                  size='sm'
+                  label='Офис'
+                  intent='primary'
+                  items={officesQuery.data?.items || []}
+                  onSelectionChange={(v) => field.onChange(Number(v))}
+                  selectedKey={field.value?.toString()}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                  isDisabled={!officesQuery.data?.items.length || field.disabled}
+                  {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
+                >
+                  {(item) => <Item key={item.id}>{item.name}</Item>}
+                </Select>
               )}
             />
 
