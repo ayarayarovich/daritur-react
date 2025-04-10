@@ -100,14 +100,14 @@ function RouteComponent() {
               </Select>
             )}
           />
-          <p>Город</p>
+          <p>Регион</p>
           <Controller
             control={form.control}
             name='cityId'
             render={({ field, fieldState }) => (
               <Select
                 size='sm'
-                label='Город'
+                label='Регион'
                 intent='primary'
                 items={availableCities.data || []}
                 onSelectionChange={(v) => field.onChange(Number(v))}

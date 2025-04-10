@@ -18,7 +18,9 @@ import { Route as PublicLoginIndexImport } from './../routes/_public/login/index
 import { Route as PrivateLayoutIndexImport } from './../routes/_private/_layout/index'
 import { Route as PrivateLayoutStaffsImport } from './../routes/_private/_layout/staffs'
 import { Route as PrivateLayoutOfficesImport } from './../routes/_private/_layout/offices'
+import { Route as PrivateLayoutHotelsImport } from './../routes/_private/_layout/hotels'
 import { Route as PrivateLayoutExcursionsImport } from './../routes/_private/_layout/excursions'
+import { Route as PrivateLayoutHotelsNewImport } from './../routes/_private/_layout/hotels_.new'
 import { Route as PrivateLayoutExcursionsNewImport } from './../routes/_private/_layout/excursions_.new'
 
 // Create/Update Routes
@@ -62,9 +64,21 @@ const PrivateLayoutOfficesRoute = PrivateLayoutOfficesImport.update({
   getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
 
+const PrivateLayoutHotelsRoute = PrivateLayoutHotelsImport.update({
+  id: '/hotels',
+  path: '/hotels',
+  getParentRoute: () => PrivateLayoutRouteRoute,
+} as any)
+
 const PrivateLayoutExcursionsRoute = PrivateLayoutExcursionsImport.update({
   id: '/excursions',
   path: '/excursions',
+  getParentRoute: () => PrivateLayoutRouteRoute,
+} as any)
+
+const PrivateLayoutHotelsNewRoute = PrivateLayoutHotelsNewImport.update({
+  id: '/hotels_/new',
+  path: '/hotels/new',
   getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
 
@@ -108,6 +122,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateLayoutExcursionsImport
       parentRoute: typeof PrivateLayoutRouteImport
     }
+    '/_private/_layout/hotels': {
+      id: '/_private/_layout/hotels'
+      path: '/hotels'
+      fullPath: '/hotels'
+      preLoaderRoute: typeof PrivateLayoutHotelsImport
+      parentRoute: typeof PrivateLayoutRouteImport
+    }
     '/_private/_layout/offices': {
       id: '/_private/_layout/offices'
       path: '/offices'
@@ -143,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateLayoutExcursionsNewImport
       parentRoute: typeof PrivateLayoutRouteImport
     }
+    '/_private/_layout/hotels_/new': {
+      id: '/_private/_layout/hotels_/new'
+      path: '/hotels/new'
+      fullPath: '/hotels/new'
+      preLoaderRoute: typeof PrivateLayoutHotelsNewImport
+      parentRoute: typeof PrivateLayoutRouteImport
+    }
   }
 }
 
@@ -150,18 +178,22 @@ declare module '@tanstack/react-router' {
 
 interface PrivateLayoutRouteRouteChildren {
   PrivateLayoutExcursionsRoute: typeof PrivateLayoutExcursionsRoute
+  PrivateLayoutHotelsRoute: typeof PrivateLayoutHotelsRoute
   PrivateLayoutOfficesRoute: typeof PrivateLayoutOfficesRoute
   PrivateLayoutStaffsRoute: typeof PrivateLayoutStaffsRoute
   PrivateLayoutIndexRoute: typeof PrivateLayoutIndexRoute
   PrivateLayoutExcursionsNewRoute: typeof PrivateLayoutExcursionsNewRoute
+  PrivateLayoutHotelsNewRoute: typeof PrivateLayoutHotelsNewRoute
 }
 
 const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
   PrivateLayoutExcursionsRoute: PrivateLayoutExcursionsRoute,
+  PrivateLayoutHotelsRoute: PrivateLayoutHotelsRoute,
   PrivateLayoutOfficesRoute: PrivateLayoutOfficesRoute,
   PrivateLayoutStaffsRoute: PrivateLayoutStaffsRoute,
   PrivateLayoutIndexRoute: PrivateLayoutIndexRoute,
   PrivateLayoutExcursionsNewRoute: PrivateLayoutExcursionsNewRoute,
+  PrivateLayoutHotelsNewRoute: PrivateLayoutHotelsNewRoute,
 }
 
 const PrivateLayoutRouteRouteWithChildren =
@@ -194,21 +226,25 @@ const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '': typeof PrivateLayoutRouteRouteWithChildren
   '/excursions': typeof PrivateLayoutExcursionsRoute
+  '/hotels': typeof PrivateLayoutHotelsRoute
   '/offices': typeof PrivateLayoutOfficesRoute
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
   '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
+  '/hotels/new': typeof PrivateLayoutHotelsNewRoute
 }
 
 export interface FileRoutesByTo {
   '': typeof PublicRouteRouteWithChildren
   '/excursions': typeof PrivateLayoutExcursionsRoute
+  '/hotels': typeof PrivateLayoutHotelsRoute
   '/offices': typeof PrivateLayoutOfficesRoute
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
   '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
+  '/hotels/new': typeof PrivateLayoutHotelsNewRoute
 }
 
 export interface FileRoutesById {
@@ -217,11 +253,13 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteRouteWithChildren
   '/_private/_layout': typeof PrivateLayoutRouteRouteWithChildren
   '/_private/_layout/excursions': typeof PrivateLayoutExcursionsRoute
+  '/_private/_layout/hotels': typeof PrivateLayoutHotelsRoute
   '/_private/_layout/offices': typeof PrivateLayoutOfficesRoute
   '/_private/_layout/staffs': typeof PrivateLayoutStaffsRoute
   '/_private/_layout/': typeof PrivateLayoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
   '/_private/_layout/excursions_/new': typeof PrivateLayoutExcursionsNewRoute
+  '/_private/_layout/hotels_/new': typeof PrivateLayoutHotelsNewRoute
 }
 
 export interface FileRouteTypes {
@@ -229,31 +267,37 @@ export interface FileRouteTypes {
   fullPaths:
     | ''
     | '/excursions'
+    | '/hotels'
     | '/offices'
     | '/staffs'
     | '/'
     | '/login'
     | '/excursions/new'
+    | '/hotels/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | ''
     | '/excursions'
+    | '/hotels'
     | '/offices'
     | '/staffs'
     | '/'
     | '/login'
     | '/excursions/new'
+    | '/hotels/new'
   id:
     | '__root__'
     | '/_private'
     | '/_public'
     | '/_private/_layout'
     | '/_private/_layout/excursions'
+    | '/_private/_layout/hotels'
     | '/_private/_layout/offices'
     | '/_private/_layout/staffs'
     | '/_private/_layout/'
     | '/_public/login/'
     | '/_private/_layout/excursions_/new'
+    | '/_private/_layout/hotels_/new'
   fileRoutesById: FileRoutesById
 }
 
@@ -298,14 +342,20 @@ export const routeTree = rootRoute
       "parent": "/_private",
       "children": [
         "/_private/_layout/excursions",
+        "/_private/_layout/hotels",
         "/_private/_layout/offices",
         "/_private/_layout/staffs",
         "/_private/_layout/",
-        "/_private/_layout/excursions_/new"
+        "/_private/_layout/excursions_/new",
+        "/_private/_layout/hotels_/new"
       ]
     },
     "/_private/_layout/excursions": {
       "filePath": "_private/_layout/excursions.tsx",
+      "parent": "/_private/_layout"
+    },
+    "/_private/_layout/hotels": {
+      "filePath": "_private/_layout/hotels.tsx",
       "parent": "/_private/_layout"
     },
     "/_private/_layout/offices": {
@@ -326,6 +376,10 @@ export const routeTree = rootRoute
     },
     "/_private/_layout/excursions_/new": {
       "filePath": "_private/_layout/excursions_.new.tsx",
+      "parent": "/_private/_layout"
+    },
+    "/_private/_layout/hotels_/new": {
+      "filePath": "_private/_layout/hotels_.new.tsx",
       "parent": "/_private/_layout"
     }
   }

@@ -3,6 +3,7 @@ import { cva, VariantProps } from 'class-variance-authority'
 import { ClassProp } from 'class-variance-authority/types'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { z } from 'zod'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -43,3 +44,9 @@ export function extractErrorMessageFromAPIError(err: unknown) {
 export function requiredFieldRefine() {
   return [(val: unknown) => !!val, 'Обязательное поле'] as const
 }
+
+export const imgScheme = z
+  .union([z.instanceof(File, { message: 'Изображение обязательно' }), z.string().optional()])
+  .refine((value) => value instanceof File || typeof value === 'string', {
+    message: 'Изображение обязательно',
+  })

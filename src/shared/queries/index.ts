@@ -1,4 +1,4 @@
-import { AuthService, ExcursionsService, StaffService } from '@/services'
+import { AuthService, ExcursionsService, HotelsService, StaffService } from '@/services'
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 
 const me = createQueryKeys('me', {
@@ -69,6 +69,21 @@ const excursions = createQueryKeys('excursions', {
   },
 })
 
-const Queries = mergeQueryKeys(me, employees, offices, excursions)
+const hotels = createQueryKeys('hotels', {
+  list: (config: { offset: number; limit: number; search?: string }) => ({
+    queryKey: [{ config }],
+    queryFn: () => HotelsService.getHotels(config),
+  }),
+  detail: (config: { id: number }) => ({
+    queryKey: [{ config }],
+    queryFn: () => HotelsService.getHotel(config),
+  }),
+  info: {
+    queryKey: null,
+    queryFn: HotelsService.getHotelsInfo,
+  },
+})
+
+const Queries = mergeQueryKeys(me, employees, offices, excursions, hotels)
 
 export default Queries
