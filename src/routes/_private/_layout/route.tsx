@@ -1,4 +1,7 @@
+import { HiOutlineBriefcase, HiOutlineOfficeBuilding, HiOutlineShieldCheck, HiOutlineUsers } from 'react-icons/hi'
 import { HiOutlineArrowRightOnRectangle } from 'react-icons/hi2'
+
+import 'react-icons/hi2'
 
 import Button from '@/components/ui/button'
 import { AuthService } from '@/services'
@@ -31,9 +34,14 @@ function RouteComponent() {
             <Link
               to={`/${v.path}` as never}
               key={v.path}
-              className='data-[status=active]:text-gray-1 flex items-center gap-1 px-5 py-1 text-sm text-white data-[status=active]:bg-white'
+              className='data-[status=active]:text-gray-1 flex items-center gap-1 px-5 py-1 text-sm font-semibold text-white data-[status=active]:bg-white'
             >
-              {v.iconUrl && <img className='size-[1em]' src={v.iconUrl} alt={v.title} />}
+              {v.path === 'tours' && <HiOutlineBriefcase className='text-[1.2em]' />}
+              {v.path === 'booking' && <HiOutlineShieldCheck className='text-[1.2em]' />}
+              {v.path === 'hotels' && <HiOutlineOfficeBuilding className='text-[1.2em]' />}
+              {v.path === 'excursions' && <HiOutlineBriefcase className='text-[1.2em]' />}
+              {v.path === 'offices' && <HiOutlineOfficeBuilding className='text-[1.2em]' />}
+              {v.path === 'staffs' && <HiOutlineUsers className='text-[1.2em]' />}
               {v.title}
             </Link>
           ))}
