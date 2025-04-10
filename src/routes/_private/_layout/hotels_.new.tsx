@@ -21,6 +21,7 @@ import { DateTime } from 'luxon'
 import { omit, unique } from 'radashi'
 import { z } from 'zod'
 
+import { Query } from '@/shared'
 import Queries from '@/shared/queries'
 
 export const Route = createFileRoute('/_private/_layout/hotels_/new')({
@@ -112,6 +113,9 @@ function RouteComponent() {
       loading: 'Секунду...',
       success: 'Успешно',
       error: (v) => extractErrorMessageFromAPIError(v) || 'Что-то пошло не так',
+    })
+    Query.client.invalidateQueries({
+      queryKey: Queries.hotels._def,
     })
     navigate({ to: '..' })
   })
