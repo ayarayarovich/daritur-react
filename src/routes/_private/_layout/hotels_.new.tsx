@@ -1,7 +1,7 @@
 import { FileTrigger } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { HiOutlineOfficeBuilding, HiOutlinePhotograph, HiX } from 'react-icons/hi'
+import { HiOutlineOfficeBuilding, HiOutlinePhotograph, HiOutlineUpload, HiX } from 'react-icons/hi'
 import { HiArrowLeft } from 'react-icons/hi2'
 import { Item } from 'react-stately'
 
@@ -50,6 +50,7 @@ const formScheme = z.object({
   checkinAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
   checkoutAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
   cityId: z.number().refine(...requiredFieldRefine()),
+  countryId: z.number().refine(...requiredFieldRefine()),
   roomTypes: z
     .object({
       placeType: z.string().refine(...requiredFieldRefine()),
@@ -67,6 +68,7 @@ const formScheme = z.object({
 
 function RouteComponent() {
   const navigate = Route.useNavigate()
+  const availableCountries = useQuery(Queries.excursions.countries)
   const availableCities = useQuery(Queries.excursions.cities)
 
   const form = useForm<z.infer<typeof formScheme>>({
@@ -74,6 +76,7 @@ function RouteComponent() {
     defaultValues: {
       name: '',
       cityId: 0,
+      countryId: 0,
       address: '',
       checkinAt: new Time(),
       checkoutAt: new Time(),
@@ -136,7 +139,7 @@ function RouteComponent() {
       </div>
       <h1 className='mb-4 text-xl font-medium'>Добавление новой гостиницы</h1>
       <div className='w-min min-w-2xl'>
-        <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
+        <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2'>
           <p>Название</p>
           <Controller
             control={form.control}
@@ -150,6 +153,27 @@ function RouteComponent() {
                 errorMessage={fieldState.error?.message}
                 isInvalid={fieldState.invalid}
               />
+            )}
+          />
+          <p>Страна</p>
+          <Controller
+            control={form.control}
+            name='countryId'
+            render={({ field, fieldState }) => (
+              <Select
+                size='sm'
+                label='Страна'
+                intent='primary'
+                items={availableCountries.data || []}
+                onSelectionChange={(v) => field.onChange(Number(v))}
+                selectedKey={field.value?.toString()}
+                errorMessage={fieldState.error?.message}
+                isInvalid={fieldState.invalid}
+                isDisabled={!availableCountries.data?.length || field.disabled}
+                {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
+              >
+                {(item) => <Item key={item.id}>{item.name}</Item>}
+              </Select>
             )}
           />
           <p>Регион</p>
@@ -208,7 +232,7 @@ function RouteComponent() {
               </div>
               <div className='flex items-start gap-2'>
                 <div className='shrink-0 grow-0 rounded-md bg-white px-2 py-1 font-bold'>{index + 1}</div>
-                <div className='grid grow grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end [&_p]:text-sm'>
+                <div className='grid grow grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-sm'>
                   <p>Вид размещения</p>
                   <Controller
                     control={form.control}
@@ -281,7 +305,7 @@ function RouteComponent() {
             </div>
           ))}
           <Button
-            className='flex w-min items-center gap-1'
+            className='flex w-max items-center gap-1 text-sm opacity-75'
             intent='ghost'
             size='sm'
             onPress={() => roomTypesFieldArray.append({} as never)}
@@ -399,7 +423,7 @@ function RouteComponent() {
               }
             }}
           >
-            <Button className='flex w-min items-center gap-1 text-sm' intent='ghost' size='sm'>
+            <Button className='flex w-min items-center gap-1 text-sm opacity-75' intent='ghost' size='sm'>
               <HiOutlinePhotograph />
               Добавить фотографию
             </Button>
@@ -424,7 +448,12 @@ function RouteComponent() {
           ))}
         </div>
       </div>
-      <Button type='submit'>Сохранить</Button>
+      <div>
+        <Button type='submit' size='md' className='flex items-center gap-2'>
+          <HiOutlineUpload />
+          Сохранить
+        </Button>
+      </div>
     </form>
   )
 }

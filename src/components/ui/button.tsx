@@ -17,7 +17,8 @@ const buttonCva = twMergifyCva(
       size: {
         xs: 'py-2 px-2 text-xs min-h-7',
         sm: 'py-2 px-3 text-base min-h-8',
-        md: 'py-4 px-4 text-xl font-medium min-h-13',
+        md: 'py-2 px-4 text-lg font-medium min-h-9',
+        lg: 'py-4 px-4 text-xl font-medium min-h-13',
       },
     },
     compoundVariants: [

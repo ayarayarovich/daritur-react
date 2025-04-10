@@ -114,7 +114,7 @@ function RouteComponent() {
                 selectedKey={field.value?.toString()}
                 errorMessage={fieldState.error?.message}
                 isInvalid={fieldState.invalid}
-                isDisabled={!availableCountries.data?.length || field.disabled}
+                isDisabled={!availableCities.data?.length || field.disabled}
                 {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
               >
                 {(item) => <Item key={item.id}>{item.name}</Item>}

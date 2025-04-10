@@ -71,7 +71,7 @@ function RouteComponent() {
           )}
         />
         <div className='flex flex-col items-stretch gap-2'>
-          <Button type='submit' isDisabled={form.formState.isSubmitting || form.formState.isSubmitSuccessful}>
+          <Button type='submit' size='lg' isDisabled={form.formState.isSubmitting || form.formState.isSubmitSuccessful}>
             Войти
           </Button>
           <div className='self-center'>

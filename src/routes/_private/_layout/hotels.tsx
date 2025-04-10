@@ -116,7 +116,7 @@ function RouteComponent() {
     columnHelper.accessor('image', {
       header: 'Изображение',
       size: 9999,
-      cell: ({ getValue, row }) => <img className='h-16 rounded-md' src={getValue()} alt={row.original.name} />,
+      cell: ({ getValue, row }) => <img className='h-16' src={getValue()} alt={row.original.name} />,
     }),
   ]
   if (infoQuery.data.canEdit) {
