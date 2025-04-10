@@ -76,6 +76,7 @@ export const getHotelsInfo = async () => {
 export const createHotel = async (payload: {
   name: string
   cityId: number
+  countryId: number
   address: string
   description: string
   checkinAt: DateTime
