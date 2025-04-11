@@ -476,7 +476,7 @@ function RouteComponent() {
               }
             }}
           >
-            <Button className='flex w-min items-center gap-1 text-sm opacity-75' intent='ghost' size='sm'>
+            <Button className='flex w-fit items-center gap-1 text-sm opacity-75' intent='ghost' size='sm'>
               <HiOutlinePhotograph />
               Добавить фотографию
             </Button>
