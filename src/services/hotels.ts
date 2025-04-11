@@ -32,10 +32,12 @@ export const getHotel = async (payload: { id: number }) => {
     id: z.number(),
     name: z.string(),
     cityId: z.number(),
+    countryId: z.number(),
     address: z.string(),
     description: z.string(),
-    checkinAt: z.string(),
-    checkoutAt: z.string(),
+    checkinAt: z.string().transform((v) => DateTime.fromISO(v)),
+    checkoutAt: z.string().transform((v) => DateTime.fromISO(v)),
+    foodTypes: z.string().array(),
     roomTypes: z
       .object({
         id: z.number(),
@@ -43,6 +45,7 @@ export const getHotel = async (payload: { id: number }) => {
         comment: z.string(),
         price: z.number(),
         count: z.number(),
+        category: z.string(),
         images: z
           .object({
             id: z.number(),
@@ -86,10 +89,41 @@ export const createHotel = async (payload: {
     comment: string
     price: number
     count: number
+    category: string
   }[]
   foodTypes: string[]
 }) => {
   const response = await Axios.privateClient.post('/react-admin/hotels', {
+    ...payload,
+    checkinAt: payload.checkinAt.toISOTime(),
+    checkoutAt: payload.checkoutAt.toISOTime(),
+  })
+  const schema = z.object({
+    id: z.number(),
+  })
+  return schema.parse(response.data)
+}
+
+export const updateHotel = async (payload: {
+  id: number
+  name: string
+  cityId: number
+  countryId: number
+  address: string
+  description: string
+  checkinAt: DateTime
+  checkoutAt: DateTime
+  roomTypes: {
+    id: number
+    placeType: string
+    comment: string
+    price: number
+    count: number
+    category: string
+  }[]
+  foodTypes: string[]
+}) => {
+  const response = await Axios.privateClient.put(`/react-admin/hotels/${payload.id}`, {
     ...payload,
     checkinAt: payload.checkinAt.toISOTime(),
     checkoutAt: payload.checkoutAt.toISOTime(),

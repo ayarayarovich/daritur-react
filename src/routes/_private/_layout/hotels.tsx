@@ -123,8 +123,13 @@ function RouteComponent() {
     columns.push(
       columnHelper.display({
         id: 'edit',
-        cell: () => (
-          <Button type='button' size='xs' intent='ghost'>
+        cell: ({ row }) => (
+          <Button
+            type='button'
+            size='xs'
+            intent='ghost'
+            onPress={() => navigate({ to: './$id', params: { id: row.original.id.toString() } })}
+          >
             <HiPencil />
           </Button>
         ),

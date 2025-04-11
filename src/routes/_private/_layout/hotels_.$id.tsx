@@ -24,8 +24,16 @@ import { z } from 'zod'
 import { Query } from '@/shared'
 import Queries from '@/shared/queries'
 
-export const Route = createFileRoute('/_private/_layout/hotels_/new')({
+export const Route = createFileRoute('/_private/_layout/hotels_/$id')({
   component: RouteComponent,
+  beforeLoad: ({ params }) => {
+    const paramsScheme = z.object({
+      id: z.coerce.number(),
+    })
+    return {
+      params: paramsScheme.parse(params),
+    }
+  },
 })
 
 const PlaceTypes = {
@@ -44,6 +52,7 @@ const FoodTypes = {
 } as Record<string, string>
 
 const formScheme = z.object({
+  id: z.number().refine(...requiredFieldRefine()),
   name: z.string().refine(...requiredFieldRefine()),
   address: z.string().refine(...requiredFieldRefine()),
   description: z.string().refine(...requiredFieldRefine()),
@@ -51,8 +60,10 @@ const formScheme = z.object({
   checkoutAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
   cityId: z.number().refine(...requiredFieldRefine()),
   countryId: z.number().refine(...requiredFieldRefine()),
+  deletedImages: z.number().array(),
   roomTypes: z
     .object({
+      id: z.number().refine(...requiredFieldRefine()),
       placeType: z.string().refine(...requiredFieldRefine()),
       comment: z.string().refine(...requiredFieldRefine()),
       category: z.string().refine(...requiredFieldRefine()),
@@ -60,7 +71,7 @@ const formScheme = z.object({
       count: z.number().refine(...requiredFieldRefine()),
     })
     .array(),
-  images: z.object({ img: imgScheme, previewUrl: z.string() }).array(),
+  images: z.object({ id: z.number(), img: imgScheme, previewUrl: z.string() }).array(),
   foodTypes: z
     .string()
     .array()
@@ -71,20 +82,37 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
   const availableCountries = useQuery(Queries.excursions.countries)
   const availableCities = useQuery(Queries.excursions.cities)
+  const ctx = Route.useRouteContext()
 
   const form = useForm<z.infer<typeof formScheme>>({
     resolver: zodResolver(formScheme),
-    defaultValues: {
-      name: '',
-      cityId: 0,
-      countryId: 0,
-      address: '',
-      checkinAt: new Time(),
-      checkoutAt: new Time(),
-      description: '',
-      roomTypes: [],
-      images: [],
-      foodTypes: [],
+    defaultValues: async () => {
+      const data = await Query.client.fetchQuery(Queries.hotels.detail({ id: ctx.params.id }))
+      return {
+        id: data.id,
+        name: data.name,
+        address: data.address,
+        description: data.description,
+        checkinAt: new Time(data.checkinAt.hour, data.checkinAt.minute),
+        checkoutAt: new Time(data.checkoutAt.hour, data.checkoutAt.minute),
+        cityId: data.cityId,
+        countryId: data.countryId,
+        roomTypes: data.roomTypes.map((v) => ({
+          id: v.id,
+          placeType: v.placeType,
+          comment: v.comment,
+          category: v.category,
+          price: v.price,
+          count: v.count,
+        })),
+        foodTypes: data.foodTypes,
+        images: data.images.map((v) => ({
+          id: v.id,
+          img: v.url,
+          previewUrl: v.url,
+        })),
+        deletedImages: [],
+      }
     },
   })
 
@@ -96,14 +124,16 @@ function RouteComponent() {
   const imagesFieldArray = useFieldArray({
     control: form.control,
     name: 'images',
+    keyName: 'fieldKey',
   })
 
   const onSubmit = form.handleSubmit(async (vals) => {
     const action = async () => {
+      const deletedImages = vals.deletedImages
       const images = vals.images
-      const values = omit(vals, ['images'])
+      const values = omit(vals, ['images', 'deletedImages'])
 
-      const hotel = await HotelsService.createHotel({
+      const hotel = await HotelsService.updateHotel({
         ...values,
         checkinAt: DateTime.fromObject({ minute: vals.checkinAt.minute, hour: vals.checkinAt.hour }),
         checkoutAt: DateTime.fromObject({ minute: vals.checkoutAt.minute, hour: vals.checkoutAt.hour }),
@@ -112,6 +142,7 @@ function RouteComponent() {
       await Promise.all(
         images.map((v) => (v.img instanceof File ? HotelsService.addHotelImage({ hotel_id: hotel.id, file: v.img }) : Promise.resolve())),
       )
+      await Promise.all(deletedImages.map((v) => HotelsService.deleteHotelImage({ hotel_id: hotel.id, image_id: v })))
     }
     await toast.promise(action(), {
       loading: 'Секунду...',
@@ -415,7 +446,7 @@ function RouteComponent() {
                   </Select>
                 </div>
                 <div className='mt-2 flex flex-wrap items-center gap-2'>
-                  {field.value.map((v) => (
+                  {field.value?.map((v) => (
                     <Button
                       key={v}
                       type='button'
@@ -441,7 +472,7 @@ function RouteComponent() {
               const files = Array.from(e)
               for (const file of files) {
                 const previewUrl = URL.createObjectURL(file)
-                imagesFieldArray.append({ img: file, previewUrl })
+                imagesFieldArray.append({ img: file, previewUrl, id: 0 })
               }
             }}
           >
@@ -453,19 +484,22 @@ function RouteComponent() {
         </div>
         <div className='mb-4 flex flex-wrap items-center gap-2'>
           {imagesFieldArray.fields.map((field, index) => (
-            <div className='relative'>
+            <div className='relative' key={field.fieldKey}>
               <div className='absolute top-2 right-2'>
-                <Button type='button' size='xs' intent='secondary'>
-                  <HiX
-                    className='text-red-500'
-                    onClick={() => {
-                      URL.revokeObjectURL(field.previewUrl)
-                      imagesFieldArray.remove(index)
-                    }}
-                  />
+                <Button
+                  type='button'
+                  size='xs'
+                  intent='secondary'
+                  onPress={() => {
+                    URL.revokeObjectURL(field.previewUrl)
+                    imagesFieldArray.remove(index)
+                    form.setValue('deletedImages', [...form.getValues('deletedImages'), field.id])
+                  }}
+                >
+                  <HiX className='text-red-500' />
                 </Button>
               </div>
-              <img key={field.id} className='h-48' src={field.previewUrl} />
+              <img className='h-48' src={field.previewUrl} />
             </div>
           ))}
         </div>
