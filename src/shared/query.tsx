@@ -1,4 +1,5 @@
 import { PropsWithChildren } from 'react'
+import toast from 'react-hot-toast'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
@@ -12,6 +13,7 @@ export const client = new QueryClient({
       refetchOnWindowFocus: true,
       retry: (failureCount, error) => {
         if (error instanceof ZodError) {
+          toast.error('Неожиданные данные с сервера')
           console.error('ОШИБКА ВАЛИДАЦИИ', error.errors)
           return false
         }
@@ -19,6 +21,10 @@ export const client = new QueryClient({
           if ([401, 403, 404].find((v) => v === error.status)) {
             return false
           }
+        }
+        if (failureCount === 2) {
+          toast.error('Не удалось получить данные с сервера')
+          console.error('ОШИБКА ЗАПРОСА', error)
         }
         return failureCount < 2
       },
