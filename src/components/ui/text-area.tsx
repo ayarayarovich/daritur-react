@@ -37,7 +37,7 @@ const labelCva = twMergifyCva(
 )
 
 const inputCva = twMergifyCva(
-  cva(['placeholder:hidden w-full placeholder:opacity-0 placeholder:invisible placeholder:scale-0 outline-none'], {
+  cva(['w-full placeholder:opacity-0 outline-none'], {
     variants: {
       intent: {
         primary: ['text-gray-1 bg-white'],
@@ -70,7 +70,13 @@ const TextField = forwardRef(
     return (
       <div>
         <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>
-          <textarea className={inputCva({ intent, size, className: 'peer' })} rows={5} {...inputProps} placeholder='' ref={ref} />
+          <textarea
+            className={inputCva({ intent, size, className: 'peer' })}
+            rows={5}
+            {...inputProps}
+            placeholder={props.label?.toString()}
+            ref={ref}
+          />
           <label className={labelCva({ intent, size, className: 'hidden peer-placeholder-shown:block' })} {...labelProps}>
             {label}
           </label>
