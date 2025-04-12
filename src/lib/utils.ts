@@ -1,3 +1,4 @@
+import { Time } from '@internationalized/date'
 import { AxiosError } from 'axios'
 import { cva, VariantProps } from 'class-variance-authority'
 import { ClassProp } from 'class-variance-authority/types'
@@ -50,3 +51,8 @@ export const imgScheme = z
   .refine((value) => value instanceof File || typeof value === 'string', {
     message: 'Изображение обязательно',
   })
+
+export const timeToString = (time?: Time | null) => {
+  if (!time) return '--:--'
+  return `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}`
+}

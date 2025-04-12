@@ -38,7 +38,7 @@ const labelCva = twMergifyCva(
 )
 
 const inputCva = twMergifyCva(
-  cva(['placeholder:hidden w-full placeholder:opacity-0 placeholder:invisible placeholder:scale-0 outline-none'], {
+  cva(['placeholder:hidden min-w-16 w-full placeholder:opacity-0 placeholder:invisible placeholder:scale-0 outline-none'], {
     variants: {
       intent: {
         primary: ['text-gray-1 bg-white'],
@@ -47,6 +47,10 @@ const inputCva = twMergifyCva(
         md: ['px-4 py-2.5'],
         sm: ['px-4 py-1 text-sm'],
       },
+      centered: {
+        true: ['text-center'],
+        false: null,
+      },
     },
   }),
 )
@@ -54,7 +58,10 @@ const inputCva = twMergifyCva(
 type Variants = VariantProps<typeof labelCva> & VariantProps<typeof boxCva> & VariantProps<typeof inputCva>
 
 const NumberField = forwardRef(
-  ({ intent = 'primary', size = 'md', ...props }: AriaNumberFieldProps & Variants, ref: ForwardedRef<HTMLInputElement>) => {
+  (
+    { intent = 'primary', size = 'md', centered = false, ...props }: AriaNumberFieldProps & Variants,
+    ref: ForwardedRef<HTMLInputElement>,
+  ) => {
     const { label } = props
     const objRef = useObjectRef(ref)
     const state = useNumberFieldState({
@@ -66,7 +73,7 @@ const NumberField = forwardRef(
     return (
       <div>
         <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>
-          <input className={inputCva({ intent, size, className: 'peer' })} {...inputProps} placeholder='' ref={ref} />
+          <input className={inputCva({ intent, size, centered, className: 'peer' })} {...inputProps} placeholder='' ref={ref} />
           <label className={labelCva({ intent, size, className: 'hidden peer-placeholder-shown:block' })} {...labelProps}>
             {label}
           </label>

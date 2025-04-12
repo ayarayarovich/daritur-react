@@ -1,14 +1,22 @@
-import { Controller, useForm } from 'react-hook-form'
+import { FileTrigger } from 'react-aria-components'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
+import { HiOutlineLocationMarker, HiOutlinePhotograph, HiOutlinePlusSm, HiOutlineUpload, HiX } from 'react-icons/hi'
 import { HiArrowLeft } from 'react-icons/hi2'
 import { Item } from 'react-stately'
 
 import Button from '@/components/ui/button'
+import NumberField from '@/components/ui/number-field'
 import Select from '@/components/ui/select'
+import TextArea from '@/components/ui/text-area'
 import TextField from '@/components/ui/text-field'
-import { requiredFieldRefine } from '@/lib/utils'
+import TimeField from '@/components/ui/time-field'
+import { imgScheme, requiredFieldRefine, timeToString } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Time } from '@internationalized/date'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { DateTime } from 'luxon'
 import { omit } from 'radashi'
 import { z } from 'zod'
 
@@ -20,6 +28,7 @@ export const Route = createFileRoute('/_private/_layout/excursions_/new')({
 
 const formScheme = z.object({
   title: z.string().refine(...requiredFieldRefine()),
+  description: z.string().refine(...requiredFieldRefine()),
   cityId: z
     .number()
     .nullable()
@@ -27,6 +36,16 @@ const formScheme = z.object({
   countryId: z
     .number()
     .nullable()
+    .refine(...requiredFieldRefine()),
+  startAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
+  endAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
+  durationHours: z.number().refine(...requiredFieldRefine()),
+  priceDefault: z.number().refine(...requiredFieldRefine()),
+  priceChild: z.number().refine(...requiredFieldRefine()),
+  _images: z.object({ img: imgScheme, previewUrl: z.string() }).array(),
+  interestPoints: z
+    .number()
+    .array()
     .refine(...requiredFieldRefine()),
 })
 
@@ -39,9 +58,23 @@ function RouteComponent() {
     resolver: zodResolver(formScheme),
     defaultValues: {
       title: '',
+      description: '',
       cityId: 0,
       countryId: 0,
+      durationHours: 0,
+      priceDefault: 0,
+      priceChild: 0,
+      startAt: new Time(),
+      endAt: new Time(),
+      interestPoints: [],
     },
+  })
+
+  const formValues = form.watch()
+
+  const imagesFieldArray = useFieldArray({
+    control: form.control,
+    name: '_images',
   })
 
   const onSubmit = form.handleSubmit((vals) => {
@@ -62,8 +95,9 @@ function RouteComponent() {
           Вернуться
         </Button>
       </div>
+      <h1 className='mb-4 text-xl font-medium'>Добавление новой экскурсии</h1>
       <div className='w-min min-w-2xl'>
-        <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
+        <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2'>
           <p>Название</p>
           <Controller
             control={form.control}
@@ -122,9 +156,160 @@ function RouteComponent() {
             )}
           />
         </div>
+
+        <div className='mb-6 flex items-center gap-6 text-nowrap'>
+          <div className='flex items-center gap-2'>
+            <p className='font-medium'>Начало ({DateTime.local().offsetNameShort})</p>
+            <Controller
+              control={form.control}
+              name='startAt'
+              render={({ field, fieldState }) => (
+                <TimeField
+                  size='sm'
+                  label='Начало'
+                  intent='primary'
+                  {...field}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                />
+              )}
+            />
+          </div>
+          <div className='flex items-center gap-2'>
+            <p className='font-medium'>Окончание ({DateTime.local().offsetNameShort})</p>
+            <Controller
+              control={form.control}
+              name='endAt'
+              render={({ field, fieldState }) => (
+                <TimeField
+                  size='sm'
+                  label='Окончание'
+                  intent='primary'
+                  {...field}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                />
+              )}
+            />
+          </div>
+          <div className='flex items-center gap-2'>
+            <p className='font-medium'>Продолжительность ~</p>
+            <Controller
+              control={form.control}
+              name='durationHours'
+              render={({ field, fieldState }) => (
+                <NumberField
+                  size='sm'
+                  centered
+                  aria-label='Продолжительность'
+                  intent='primary'
+                  {...field}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                />
+              )}
+            />
+            <p className='font-medium'>ч</p>
+          </div>
+        </div>
+        <p className='mb-4'>Точки экскурсионного маршрута</p>
+        <div className='mb-6 flex flex-col items-stretch gap-2'>
+          <div className='flex items-center gap-4'>
+            <div className='text-sm font-semibold'>{timeToString(formValues.startAt)}</div>
+            <div className='border-gray-1 flex size-10 shrink-0 grow-0 items-center justify-center rounded-full border'>
+              <HiOutlineLocationMarker className='text-[1.5rem]' />
+            </div>
+            <div className='border-gray-4 grow rounded-md border px-3 py-2'>
+              <div className='text-sm font-semibold'>Встреча с экскурсоводом в холле гостиницы.</div>
+              <div className='text-gray-3 text-xs font-light'>Адрес: ...</div>
+            </div>
+          </div>
+          <div className='flex items-center gap-4'>
+            <div className='invisible text-sm font-semibold'>{timeToString(formValues.startAt)}</div>
+            <div className='flex size-10 shrink-0 grow-0 items-center justify-center rounded-full'>
+              <div className='bg-gray-6 size-2 rounded-full'></div>
+            </div>
+            <Button
+              className='flex w-fit items-center gap-1 text-sm opacity-75'
+              intent='ghost'
+              size='sm'
+              type='button'
+              onPress={() => toast.error('Жду пояснений по API')}
+            >
+              <HiOutlinePlusSm />
+              Добавить точку
+            </Button>
+          </div>
+          <div className='flex items-center gap-4'>
+            <div className='text-sm font-semibold'>{timeToString(formValues.endAt)}</div>
+            <div className='border-gray-1 flex size-10 shrink-0 grow-0 items-center justify-center rounded-full border'>
+              <HiOutlineLocationMarker className='text-[1.5rem]' />
+            </div>
+            <div className='border-gray-4 grow rounded-md border px-3 py-2'>
+              <div className='text-sm font-semibold'>Окончание программы..</div>
+              <div className='text-gray-3 text-xs font-light'>Адрес: ...</div>
+            </div>
+          </div>
+        </div>
+        <p className='mb-2'>Описание</p>
+        <div className='mb-6'>
+          <Controller
+            control={form.control}
+            name='description'
+            render={({ field, fieldState }) => (
+              <TextArea
+                size='sm'
+                label='Описание'
+                intent='primary'
+                {...field}
+                errorMessage={fieldState.error?.message}
+                isInvalid={fieldState.invalid}
+              />
+            )}
+          />
+        </div>
+        <div className='mb-2 flex items-center gap-2'>
+          <p>Фотографии</p>
+          <FileTrigger
+            onSelect={(e) => {
+              if (!e) return
+              const files = Array.from(e)
+              for (const file of files) {
+                const previewUrl = URL.createObjectURL(file)
+                imagesFieldArray.append({ img: file, previewUrl })
+              }
+            }}
+          >
+            <Button className='flex w-fit items-center gap-1 text-sm opacity-75' intent='ghost' size='sm' type='button'>
+              <HiOutlinePhotograph />
+              Добавить фотографию
+            </Button>
+          </FileTrigger>
+        </div>
+        <div className='mb-6 flex flex-wrap items-center gap-2'>
+          {imagesFieldArray.fields.map((field, index) => (
+            <div className='relative'>
+              <div className='absolute top-2 right-2'>
+                <Button type='button' size='xs' intent='secondary'>
+                  <HiX
+                    className='text-red-500'
+                    onClick={() => {
+                      URL.revokeObjectURL(field.previewUrl)
+                      imagesFieldArray.remove(index)
+                    }}
+                  />
+                </Button>
+              </div>
+              <img key={field.id} className='h-48' src={field.previewUrl} />
+            </div>
+          ))}
+        </div>
       </div>
       <div>
-        <p>Точки экскурсионного маршрута</p>
+        <Button type='submit' size='md' className='flex items-center gap-2'>
+          <HiOutlineUpload />
+          Сохранить
+        </Button>
       </div>
     </form>
   )
