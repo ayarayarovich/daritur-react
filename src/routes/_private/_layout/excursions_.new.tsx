@@ -38,8 +38,14 @@ const formScheme = z.object({
     .number()
     .nullable()
     .refine(...requiredFieldRefine()),
-  startAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
-  endAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
+  startAt: z
+    .instanceof(Time, { message: 'Обязательное поле' })
+    .nullable()
+    .refine(...requiredFieldRefine()),
+  endAt: z
+    .instanceof(Time, { message: 'Обязательное поле' })
+    .nullable()
+    .refine(...requiredFieldRefine()),
   durationHours: z.number().refine(...requiredFieldRefine()),
   priceDefault: z.number().refine(...requiredFieldRefine()),
   priceChild: z.number().refine(...requiredFieldRefine()),
@@ -65,8 +71,8 @@ function RouteComponent() {
       durationHours: 0,
       priceDefault: 0,
       priceChild: 0,
-      startAt: new Time(),
-      endAt: new Time(),
+      startAt: null,
+      endAt: null,
       interestPoints: [],
     },
   })
@@ -239,7 +245,6 @@ function RouteComponent() {
             </div>
             <div className='border-gray-4 grow rounded-md border px-3 py-2'>
               <div className='text-sm font-semibold'>Встреча с экскурсоводом в холле гостиницы.</div>
-              <div className='text-gray-3 text-xs font-light'>Адрес: ...</div>
             </div>
           </div>
           <div className='flex items-center gap-4'>
@@ -265,7 +270,6 @@ function RouteComponent() {
             </div>
             <div className='border-gray-4 grow rounded-md border px-3 py-2'>
               <div className='text-sm font-semibold'>Окончание программы..</div>
-              <div className='text-gray-3 text-xs font-light'>Адрес: ...</div>
             </div>
           </div>
         </div>
