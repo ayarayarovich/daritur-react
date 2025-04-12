@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { FileTrigger } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -71,6 +72,23 @@ function RouteComponent() {
   })
 
   const formValues = form.watch()
+
+  useEffect(() => {
+    if (formValues.startAt && formValues.endAt) {
+      const start = DateTime.fromObject({
+        hour: formValues.startAt.hour,
+        minute: formValues.startAt.minute,
+      })
+      const end = DateTime.fromObject({
+        hour: formValues.endAt.hour,
+        minute: formValues.endAt.minute,
+      })
+      const duration = end.diff(start, ['hours', 'minutes'])
+      if (duration.hours >= 0) {
+        form.setValue('durationHours', duration.hours)
+      }
+    }
+  }, [formValues.startAt, formValues.endAt, form])
 
   const imagesFieldArray = useFieldArray({
     control: form.control,
