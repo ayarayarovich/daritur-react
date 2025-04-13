@@ -69,6 +69,17 @@ const excursions = createQueryKeys('excursions', {
   },
 })
 
+const interests = createQueryKeys('interests', {
+  list: (config: { search: string; limit: number; offset: number }) => ({
+    queryKey: [config],
+    queryFn: ({ signal }: { signal: AbortSignal }) => ExcursionsService.getInterests(config, signal),
+  }),
+  detail: (config: { id: number }) => ({
+    queryKey: [{ config }],
+    queryFn: () => ExcursionsService.getInterestDetails(config),
+  }),
+})
+
 const hotels = createQueryKeys('hotels', {
   list: (config: { offset: number; limit: number; search?: string }) => ({
     queryKey: [{ config }],
@@ -84,6 +95,6 @@ const hotels = createQueryKeys('hotels', {
   },
 })
 
-const Queries = mergeQueryKeys(me, employees, offices, excursions, hotels)
+const Queries = mergeQueryKeys(me, employees, offices, excursions, hotels, interests)
 
 export default Queries

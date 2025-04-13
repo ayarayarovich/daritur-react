@@ -1,5 +1,5 @@
-import { useRef } from 'react'
-import { DismissButton, Overlay, usePopover, type AriaPopoverProps } from 'react-aria'
+import { ForwardedRef, forwardRef } from 'react'
+import { DismissButton, Overlay, useObjectRef, usePopover, type AriaPopoverProps } from 'react-aria'
 import type { OverlayTriggerState } from 'react-stately'
 
 interface PopoverProps extends Omit<AriaPopoverProps, 'popoverRef'> {
@@ -7,8 +7,8 @@ interface PopoverProps extends Omit<AriaPopoverProps, 'popoverRef'> {
   state: OverlayTriggerState
 }
 
-export default function Popover({ children, state, offset = 8, ...props }: PopoverProps) {
-  const popoverRef = useRef(null)
+const Popover = forwardRef(({ children, state, offset = 8, ...props }: PopoverProps, ref: ForwardedRef<HTMLDivElement>) => {
+  const popoverRef = useObjectRef(ref)
   const { popoverProps, underlayProps } = usePopover(
     {
       ...props,
@@ -40,4 +40,6 @@ export default function Popover({ children, state, offset = 8, ...props }: Popov
       </div>
     </Overlay>
   )
-}
+})
+
+export default Popover

@@ -110,7 +110,7 @@ export default function Select<T extends object>({ size = 'md', intent = 'primar
         <Popover state={state} triggerRef={ref} placement='bottom'>
           <div className='py-2.5' style={{ minWidth: width ? width.toString() + 'px' : 'auto' }}>
             <ListBox {...menuProps} state={state}>
-              {props.children}
+              {props.children as never}
             </ListBox>
           </div>
         </Popover>

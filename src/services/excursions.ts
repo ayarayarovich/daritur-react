@@ -17,7 +17,7 @@ export const getExcursions = async (payload: { offset: number; limit: number; of
       .object({
         id: z.number(),
         title: z.string(),
-        address: z.string(),
+        description: z.string(),
         interestsPoints: z.string(),
       })
       .array(),
@@ -138,4 +138,55 @@ export const getCountries = async () => {
     .array()
   const data = schema.parse(response.data)
   return data
+}
+
+export const getInterests = async (payload: { search: string; offset: number; limit: number }, signal?: AbortSignal) => {
+  const response = await Axios.privateClient.get('/react-admin/interests', {
+    params: {
+      q: payload.search,
+      offset: payload.offset,
+      limit: payload.limit,
+    },
+    signal,
+  })
+  const schema = z.object({
+    count: z.number(),
+    items: z
+      .object({
+        id: z.number(),
+        title: z.string(),
+        address: z.string(),
+      })
+      .array(),
+  })
+  const data = schema.parse(response.data)
+  return data
+}
+
+export const getInterestDetails = async (payload: { id: number | string }) => {
+  const response = await Axios.privateClient.get(`/react-admin/interests/${payload.id}`)
+  const schema = z.object({
+    id: z.number(),
+    title: z.string(),
+    description: z.string(),
+    address: z.string(),
+  })
+  const data = schema.parse(response.data)
+  return data
+}
+
+export const addExcursionImage = async (payload: { excursion_id: number; file: File }) => {
+  const response = await Axios.privateClient.postForm(`/react-admin/excursions/${payload.excursion_id}/images`, {
+    file: payload.file,
+  })
+  const schema = z.object({
+    id: z.number(),
+    url: z.string(),
+  })
+  return schema.parse(response.data)
+}
+
+export const deleteExcursionImage = async (payload: { excursion_id: number; image_id: number }) => {
+  const response = await Axios.privateClient.delete(`/react-admin/excursions/${payload.excursion_id}/images/${payload.image_id}`)
+  return response.data
 }

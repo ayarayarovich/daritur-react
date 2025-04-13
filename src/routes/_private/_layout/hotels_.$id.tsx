@@ -60,7 +60,7 @@ const formScheme = z.object({
   checkoutAt: z.instanceof(Time, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
   cityId: z.number().refine(...requiredFieldRefine()),
   countryId: z.number().refine(...requiredFieldRefine()),
-  deletedImages: z.number().array(),
+  _deletedImages: z.number().array(),
   roomTypes: z
     .object({
       id: z.number().refine(...requiredFieldRefine()),
@@ -71,7 +71,7 @@ const formScheme = z.object({
       count: z.number().refine(...requiredFieldRefine()),
     })
     .array(),
-  images: z.object({ id: z.number(), img: imgScheme, previewUrl: z.string() }).array(),
+  _images: z.object({ id: z.number(), img: imgScheme, previewUrl: z.string() }).array(),
   foodTypes: z
     .string()
     .array()
@@ -106,12 +106,12 @@ function RouteComponent() {
           count: v.count,
         })),
         foodTypes: data.foodTypes,
-        images: data.images.map((v) => ({
+        _images: data.images.map((v) => ({
           id: v.id,
           img: v.url,
           previewUrl: v.url,
         })),
-        deletedImages: [],
+        _deletedImages: [],
       }
     },
   })
@@ -123,15 +123,15 @@ function RouteComponent() {
 
   const imagesFieldArray = useFieldArray({
     control: form.control,
-    name: 'images',
+    name: '_images',
     keyName: 'fieldKey',
   })
 
   const onSubmit = form.handleSubmit(async (vals) => {
     const action = async () => {
-      const deletedImages = vals.deletedImages
-      const images = vals.images
-      const values = omit(vals, ['images', 'deletedImages'])
+      const deletedImages = vals._deletedImages
+      const images = vals._images
+      const values = omit(vals, ['_images', '_deletedImages'])
 
       const hotel = await HotelsService.updateHotel({
         ...values,
@@ -493,7 +493,7 @@ function RouteComponent() {
                   onPress={() => {
                     URL.revokeObjectURL(field.previewUrl)
                     imagesFieldArray.remove(index)
-                    form.setValue('deletedImages', [...form.getValues('deletedImages'), field.id])
+                    form.setValue('_deletedImages', [...form.getValues('_deletedImages'), field.id])
                   }}
                 >
                   <HiX className='text-red-500' />

@@ -104,8 +104,8 @@ function RouteComponent() {
       header: 'Название',
       size: 9999,
     }),
-    columnHelper.accessor('address', {
-      header: 'Адрес',
+    columnHelper.accessor('description', {
+      header: 'Описание',
       size: 9999,
     }),
     columnHelper.accessor('interestsPoints', {

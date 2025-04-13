@@ -58,9 +58,6 @@ const TextField = forwardRef(
     const objRef = useObjectRef(ref)
     const { labelProps, inputProps, descriptionProps, errorMessageProps, isInvalid } = useTextField(props, objRef)
 
-    console.log(props.placeholder)
-    console.log(inputProps)
-
     return (
       <div>
         <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>

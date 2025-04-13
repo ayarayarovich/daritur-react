@@ -60,7 +60,7 @@ const formScheme = z.object({
       count: z.number().refine(...requiredFieldRefine()),
     })
     .array(),
-  images: z.object({ img: imgScheme, previewUrl: z.string() }).array(),
+  _images: z.object({ img: imgScheme, previewUrl: z.string() }).array(),
   foodTypes: z
     .string()
     .array()
@@ -83,7 +83,7 @@ function RouteComponent() {
       checkoutAt: new Time(),
       description: '',
       roomTypes: [],
-      images: [],
+      _images: [],
       foodTypes: [],
     },
   })
@@ -95,13 +95,13 @@ function RouteComponent() {
 
   const imagesFieldArray = useFieldArray({
     control: form.control,
-    name: 'images',
+    name: '_images',
   })
 
   const onSubmit = form.handleSubmit(async (vals) => {
     const action = async () => {
-      const images = vals.images
-      const values = omit(vals, ['images'])
+      const images = vals._images
+      const values = omit(vals, ['_images'])
 
       const hotel = await HotelsService.createHotel({
         ...values,
