@@ -318,7 +318,7 @@ function RouteComponent() {
                   </>
                 )}
                 {selectedInterestsWithDetailsQueries[id]?.isError && <div>Ошибка</div>}
-                {selectedInterestsWithDetailsQueries[id]?.isLoading && <div>Загрузка...</div>}
+                {!selectedInterestsWithDetailsQueries[id] || (selectedInterestsWithDetailsQueries[id].isLoading && <div>Загрузка...</div>)}
               </div>
             </div>
           ))}
