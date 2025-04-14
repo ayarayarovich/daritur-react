@@ -313,7 +313,7 @@ function RouteComponent() {
                     </div>
                     <div className='text-xs font-light'>{selectedInterestsWithDetailsQueries[id]?.data.description}</div>
                     <div className='text-xs font-light'>
-                      <span className='underline'>Адрес:</span> {selectedInterestsWithDetailsQueries[id]?.data.description}
+                      <span className='underline'>Адрес:</span> {selectedInterestsWithDetailsQueries[id]?.data.address}
                     </div>
                   </>
                 )}
