@@ -3,12 +3,12 @@ import { z } from 'zod'
 
 import { Axios } from '@/shared'
 
-export const getExcursions = async (payload: { offset: number; limit: number; officeId?: number }) => {
+export const getExcursions = async (payload: { search?: string; offset: number; limit: number }) => {
   const response = await Axios.privateClient.get('/react-admin/excursions', {
     params: {
       offset: payload.offset,
       limit: payload.limit,
-      office_id: payload.officeId,
+      q: payload.search,
     },
   })
   const schema = z.object({
@@ -52,6 +52,14 @@ export const getExcursion = async (payload: { id: number }) => {
       .nullish()
       .transform((v) => v ?? []),
     id: z.number(),
+    images: z
+      .object({
+        id: z.number(),
+        url: z.string(),
+      })
+      .array()
+      .optional()
+      .transform((v) => v || []),
     createdAt: z.string().transform((v) => DateTime.fromISO(v)),
     updatedAt: z.string().transform((v) => DateTime.fromISO(v)),
   })
@@ -90,7 +98,7 @@ export const createExcursion = async (payload: {
   const response = await Axios.privateClient.post('/react-admin/excursions', {
     ...payload,
     startAt: payload.startAt.toFormat('HH:mm:ss.SSSZZ'),
-    endAt: payload.startAt.toFormat('HH:mm:ss.SSSZZ'),
+    endAt: payload.endAt.toFormat('HH:mm:ss.SSSZZ'),
   })
   return response.data
 }
@@ -111,7 +119,7 @@ export const updateExcursion = async (payload: {
   const response = await Axios.privateClient.put(`/react-admin/excursions/${payload.id}`, {
     ...payload,
     startAt: payload.startAt.toFormat('HH:mm:ss.SSSZZ'),
-    endAt: payload.startAt.toFormat('HH:mm:ss.SSSZZ'),
+    endAt: payload.endAt.toFormat('HH:mm:ss.SSSZZ'),
   })
   return response.data
 }

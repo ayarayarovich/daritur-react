@@ -5,11 +5,13 @@ import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2'
 import { DataTable } from '@/components/data-table'
 import Button from '@/components/ui/button'
 import Checkbox from '@/components/ui/checkbox'
+import TextField from '@/components/ui/text-field'
 import { extractErrorMessageFromAPIError } from '@/lib/utils'
 import { ExcursionsService } from '@/services'
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { useDebounce } from '@uidotdev/usehooks'
 import { z } from 'zod'
 
 import { Query } from '@/shared'
@@ -52,25 +54,28 @@ function RouteComponent() {
     },
     [navigate, searchParams],
   )
-  // const setSearch = useCallback(
-  //   (search: string) => {
-  //     navigate({
-  //       to: '.',
-  //       search: {
-  //         ...searchParams,
-  //         employeesSearch: search,
-  //       },
-  //       replace: true,
-  //     })
-  //   },
-  //   [searchParams, navigate],
-  // )
+  const setSearch = useCallback(
+    (search: string) => {
+      navigate({
+        to: '.',
+        search: {
+          ...searchParams,
+          search,
+        },
+        replace: true,
+      })
+    },
+    [searchParams, navigate],
+  )
+
+  const debouncedSearch = useDebounce(searchParams.search, 500)
 
   const infoQuery = useSuspenseQuery(Queries.excursions.info)
   const listQuery = useQuery({
     ...Queries.excursions.list({
       offset: searchParams.pageIndex * searchParams.pageSize,
       limit: searchParams.pageSize,
+      search: debouncedSearch,
     }),
     placeholderData: (v) => v,
   })
@@ -117,8 +122,13 @@ function RouteComponent() {
     columns.push(
       columnHelper.display({
         id: 'edit',
-        cell: () => (
-          <Button type='button' size='xs' intent='ghost'>
+        cell: ({ row }) => (
+          <Button
+            type='button'
+            size='xs'
+            intent='ghost'
+            onPress={() => navigate({ to: '/excursions/$id', params: { id: row.original.id.toString() } })}
+          >
             <HiPencil />
           </Button>
         ),
@@ -184,6 +194,9 @@ function RouteComponent() {
               Добавить экскурсию
             </Button>
           )}
+        </div>
+        <div className='max-w-sm'>
+          {infoQuery.data.canSearch && <TextField label='Поиск...' value={searchParams.search} onChange={setSearch} />}
         </div>
         <div>
           {infoQuery.data.canDelete && (

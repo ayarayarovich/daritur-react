@@ -26,11 +26,20 @@ import { z } from 'zod'
 import { Query } from '@/shared'
 import Queries from '@/shared/queries'
 
-export const Route = createFileRoute('/_private/_layout/excursions_/new')({
+export const Route = createFileRoute('/_private/_layout/excursions_/$id')({
   component: RouteComponent,
+  beforeLoad: ({ params }) => {
+    const paramsScheme = z.object({
+      id: z.coerce.number(),
+    })
+    return {
+      params: paramsScheme.parse(params),
+    }
+  },
 })
 
 const formScheme = z.object({
+  id: z.number().refine(...requiredFieldRefine()),
   title: z.string().refine(...requiredFieldRefine()),
   description: z.string().refine(...requiredFieldRefine()),
   cityId: z.number().refine(...requiredFieldRefine()),
@@ -40,7 +49,8 @@ const formScheme = z.object({
   durationHours: z.number().refine(...requiredFieldRefine()),
   priceDefault: z.number().refine(...requiredFieldRefine()),
   priceChild: z.number().refine(...requiredFieldRefine()),
-  _images: z.object({ img: imgScheme, previewUrl: z.string() }).array(),
+  _images: z.object({ id: z.number(), img: imgScheme, previewUrl: z.string() }).array(),
+  _deletedImages: z.number().array(),
   interestsPoints: z
     .number()
     .array()
@@ -49,21 +59,23 @@ const formScheme = z.object({
 
 function RouteComponent() {
   const navigate = Route.useNavigate()
+  const { params } = Route.useRouteContext()
   const availableCities = useQuery(Queries.excursions.cities)
   const availableCountries = useQuery(Queries.excursions.countries)
   const [showAddInterestPointCombobox, setShowAddInterestPointCombobox] = useState(false)
 
   const form = useForm<z.infer<typeof formScheme>>({
     resolver: zodResolver(formScheme),
-    defaultValues: {
-      title: '',
-      description: '',
-      cityId: 0,
-      countryId: 0,
-      durationHours: 0,
-      priceDefault: 0,
-      priceChild: 0,
-      interestsPoints: [],
+    defaultValues: async () => {
+      const data = await Query.client.fetchQuery(Queries.excursions.detail({ id: params.id }))
+      return {
+        ...data,
+        startAt: new Time(data.startAt.hour, data.startAt.minute),
+        endAt: new Time(data.endAt.hour, data.endAt.minute),
+        interestsPoints: data.interestsPoints.map((v) => v.id),
+        _images: data.images.map((v) => ({ id: v.id, img: v.url, previewUrl: v.url })),
+        _deletedImages: [],
+      }
     },
   })
 
@@ -117,9 +129,10 @@ function RouteComponent() {
     async (vals) => {
       const action = async () => {
         const images = vals._images
-        const values = omit(vals, ['_images'])
+        const deletedImages = vals._deletedImages
+        const values = omit(vals, ['_images', '_deletedImages'])
 
-        const excursion = await ExcursionsService.createExcursion({
+        const excursion = await ExcursionsService.updateExcursion({
           ...values,
           startAt: DateTime.fromObject({ minute: vals.startAt.minute, hour: vals.startAt.hour }),
           endAt: DateTime.fromObject({ minute: vals.endAt.minute, hour: vals.endAt.hour }),
@@ -130,6 +143,8 @@ function RouteComponent() {
             v.img instanceof File ? ExcursionsService.addExcursionImage({ excursion_id: excursion.id, file: v.img }) : Promise.resolve(),
           ),
         )
+
+        await Promise.all(deletedImages.map((v) => ExcursionsService.deleteExcursionImage({ excursion_id: excursion.id, image_id: v })))
       }
       await toast.promise(action(), {
         loading: 'Секунду...',
@@ -158,7 +173,7 @@ function RouteComponent() {
           Вернуться
         </Button>
       </div>
-      <h1 className='mb-4 text-xl font-medium'>Добавление новой экскурсии</h1>
+      <h1 className='mb-4 text-xl font-medium'>Изменить экскурсию</h1>
       <div className='w-min min-w-2xl'>
         <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2'>
           <p className='font-medium'>Название</p>
@@ -286,7 +301,7 @@ function RouteComponent() {
               <div className='text-sm font-semibold'>Встреча с экскурсоводом в холле гостиницы.</div>
             </div>
           </div>
-          {formValues.interestsPoints.map((id, index) => (
+          {formValues.interestsPoints?.map((id, index) => (
             <div className='flex items-center gap-4' key={index}>
               <div className='invisible text-sm font-semibold'>{timeToString(formValues.startAt)}</div>
               <div className='border-gray-1 invisible flex size-10 shrink-0 grow-0 items-center justify-center rounded-full border'>
@@ -406,7 +421,7 @@ function RouteComponent() {
               const files = Array.from(e)
               for (const file of files) {
                 const previewUrl = URL.createObjectURL(file)
-                imagesFieldArray.append({ img: file, previewUrl })
+                imagesFieldArray.append({ id: 0, img: file, previewUrl })
               }
             }}
           >
@@ -420,14 +435,17 @@ function RouteComponent() {
           {imagesFieldArray.fields.map((field, index) => (
             <div className='relative' key={field.id}>
               <div className='absolute top-2 right-2'>
-                <Button type='button' size='xs' intent='secondary'>
-                  <HiX
-                    className='text-red-500'
-                    onClick={() => {
-                      URL.revokeObjectURL(field.previewUrl)
-                      imagesFieldArray.remove(index)
-                    }}
-                  />
+                <Button
+                  type='button'
+                  size='xs'
+                  intent='secondary'
+                  onPress={() => {
+                    URL.revokeObjectURL(field.previewUrl)
+                    imagesFieldArray.remove(index)
+                    form.setValue('_deletedImages', [...form.getValues('_deletedImages'), field.id])
+                  }}
+                >
+                  <HiX className='text-red-500' />
                 </Button>
               </div>
               <img className='h-48' src={field.previewUrl} />

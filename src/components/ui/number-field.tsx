@@ -2,7 +2,7 @@ import { ForwardedRef, forwardRef } from 'react'
 import { AriaNumberFieldProps, useNumberField, useObjectRef } from 'react-aria'
 import { useNumberFieldState } from 'react-stately'
 
-import { twMergifyCva } from '@/lib/utils'
+import { cn, twMergifyCva } from '@/lib/utils'
 import { cva, VariantProps } from 'class-variance-authority'
 
 const boxCva = twMergifyCva(
@@ -59,7 +59,7 @@ type Variants = VariantProps<typeof labelCva> & VariantProps<typeof boxCva> & Va
 
 const NumberField = forwardRef(
   (
-    { intent = 'primary', size = 'md', centered = false, ...props }: AriaNumberFieldProps & Variants,
+    { intent = 'primary', size = 'md', centered = false, className, ...props }: AriaNumberFieldProps & Variants & { className?: string },
     ref: ForwardedRef<HTMLInputElement>,
   ) => {
     const { label } = props
@@ -74,7 +74,7 @@ const NumberField = forwardRef(
       <div>
         <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>
           <input
-            className={inputCva({ intent, size, centered, className: 'peer' })}
+            className={inputCva({ intent, size, centered, className: cn('peer', className) })}
             {...inputProps}
             placeholder={props.label?.toString()}
             ref={ref}

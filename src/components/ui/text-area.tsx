@@ -52,7 +52,7 @@ const inputCva = twMergifyCva(
 
 type Variants = VariantProps<typeof labelCva> & VariantProps<typeof boxCva> & VariantProps<typeof inputCva>
 
-const TextField = forwardRef(
+const TextArea = forwardRef(
   (
     { intent = 'primary', size = 'md', ...props }: AriaTextFieldProps<HTMLTextAreaElement> & Variants,
     ref: ForwardedRef<HTMLTextAreaElement>,
@@ -96,4 +96,4 @@ const TextField = forwardRef(
   },
 )
 
-export default TextField
+export default TextArea

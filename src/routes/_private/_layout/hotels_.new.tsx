@@ -141,7 +141,7 @@ function RouteComponent() {
       <h1 className='mb-4 text-xl font-medium'>Добавление новой гостиницы</h1>
       <div className='w-min min-w-2xl'>
         <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2'>
-          <p>Название</p>
+          <p className='font-medium'>Название</p>
           <Controller
             control={form.control}
             name='name'
@@ -156,7 +156,7 @@ function RouteComponent() {
               />
             )}
           />
-          <p>Страна</p>
+          <p className='font-medium'>Страна</p>
           <Controller
             control={form.control}
             name='countryId'
@@ -177,7 +177,7 @@ function RouteComponent() {
               </Select>
             )}
           />
-          <p>Регион</p>
+          <p className='font-medium'>Регион</p>
           <Controller
             control={form.control}
             name='cityId'
@@ -198,7 +198,7 @@ function RouteComponent() {
               </Select>
             )}
           />
-          <p>Адрес</p>
+          <p className='font-medium'>Адрес</p>
           <Controller
             control={form.control}
             name='address'
@@ -216,7 +216,7 @@ function RouteComponent() {
         </div>
       </div>
       <div className='w-min min-w-2xl'>
-        <p className='mb-2'>Номера</p>
+        <p className='mb-2 font-medium'>Номера</p>
         <div className='mb-4 flex flex-col items-stretch gap-2'>
           {roomTypesFieldArray.fields.map((field, index) => (
             <div className='rounded-md bg-teal-50 p-2 pb-4' key={field.id}>
@@ -336,7 +336,7 @@ function RouteComponent() {
             Добавить номер
           </Button>
         </div>
-        <p className='mb-2'>Описание</p>
+        <p className='mb-2 font-medium'>Описание</p>
         <div className='mb-4'>
           <Controller
             control={form.control}
@@ -390,7 +390,7 @@ function RouteComponent() {
           </div>
         </div>
 
-        <p className='mb-2'>Питание</p>
+        <p className='mb-2 font-medium'>Питание</p>
         <div className='mb-4 flex items-center gap-2'>
           <Controller
             control={form.control}
@@ -434,7 +434,7 @@ function RouteComponent() {
           />
         </div>
         <div className='mb-2 flex items-center gap-2'>
-          <p>Фотографии</p>
+          <p className='font-medium'>Фотографии</p>
           <FileTrigger
             onSelect={(e) => {
               if (!e) return

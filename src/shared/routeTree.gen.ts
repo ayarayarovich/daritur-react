@@ -23,6 +23,7 @@ import { Route as PrivateLayoutExcursionsImport } from './../routes/_private/_la
 import { Route as PrivateLayoutHotelsNewImport } from './../routes/_private/_layout/hotels_.new'
 import { Route as PrivateLayoutHotelsIdImport } from './../routes/_private/_layout/hotels_.$id'
 import { Route as PrivateLayoutExcursionsNewImport } from './../routes/_private/_layout/excursions_.new'
+import { Route as PrivateLayoutExcursionsIdImport } from './../routes/_private/_layout/excursions_.$id'
 
 // Create/Update Routes
 
@@ -97,6 +98,12 @@ const PrivateLayoutExcursionsNewRoute = PrivateLayoutExcursionsNewImport.update(
   } as any,
 )
 
+const PrivateLayoutExcursionsIdRoute = PrivateLayoutExcursionsIdImport.update({
+  id: '/excursions_/$id',
+  path: '/excursions/$id',
+  getParentRoute: () => PrivateLayoutRouteRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -164,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginIndexImport
       parentRoute: typeof PublicRouteImport
     }
+    '/_private/_layout/excursions_/$id': {
+      id: '/_private/_layout/excursions_/$id'
+      path: '/excursions/$id'
+      fullPath: '/excursions/$id'
+      preLoaderRoute: typeof PrivateLayoutExcursionsIdImport
+      parentRoute: typeof PrivateLayoutRouteImport
+    }
     '/_private/_layout/excursions_/new': {
       id: '/_private/_layout/excursions_/new'
       path: '/excursions/new'
@@ -196,6 +210,7 @@ interface PrivateLayoutRouteRouteChildren {
   PrivateLayoutOfficesRoute: typeof PrivateLayoutOfficesRoute
   PrivateLayoutStaffsRoute: typeof PrivateLayoutStaffsRoute
   PrivateLayoutIndexRoute: typeof PrivateLayoutIndexRoute
+  PrivateLayoutExcursionsIdRoute: typeof PrivateLayoutExcursionsIdRoute
   PrivateLayoutExcursionsNewRoute: typeof PrivateLayoutExcursionsNewRoute
   PrivateLayoutHotelsIdRoute: typeof PrivateLayoutHotelsIdRoute
   PrivateLayoutHotelsNewRoute: typeof PrivateLayoutHotelsNewRoute
@@ -207,6 +222,7 @@ const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
   PrivateLayoutOfficesRoute: PrivateLayoutOfficesRoute,
   PrivateLayoutStaffsRoute: PrivateLayoutStaffsRoute,
   PrivateLayoutIndexRoute: PrivateLayoutIndexRoute,
+  PrivateLayoutExcursionsIdRoute: PrivateLayoutExcursionsIdRoute,
   PrivateLayoutExcursionsNewRoute: PrivateLayoutExcursionsNewRoute,
   PrivateLayoutHotelsIdRoute: PrivateLayoutHotelsIdRoute,
   PrivateLayoutHotelsNewRoute: PrivateLayoutHotelsNewRoute,
@@ -247,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
+  '/excursions/$id': typeof PrivateLayoutExcursionsIdRoute
   '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
   '/hotels/$id': typeof PrivateLayoutHotelsIdRoute
   '/hotels/new': typeof PrivateLayoutHotelsNewRoute
@@ -260,6 +277,7 @@ export interface FileRoutesByTo {
   '/staffs': typeof PrivateLayoutStaffsRoute
   '/': typeof PrivateLayoutIndexRoute
   '/login': typeof PublicLoginIndexRoute
+  '/excursions/$id': typeof PrivateLayoutExcursionsIdRoute
   '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
   '/hotels/$id': typeof PrivateLayoutHotelsIdRoute
   '/hotels/new': typeof PrivateLayoutHotelsNewRoute
@@ -276,6 +294,7 @@ export interface FileRoutesById {
   '/_private/_layout/staffs': typeof PrivateLayoutStaffsRoute
   '/_private/_layout/': typeof PrivateLayoutIndexRoute
   '/_public/login/': typeof PublicLoginIndexRoute
+  '/_private/_layout/excursions_/$id': typeof PrivateLayoutExcursionsIdRoute
   '/_private/_layout/excursions_/new': typeof PrivateLayoutExcursionsNewRoute
   '/_private/_layout/hotels_/$id': typeof PrivateLayoutHotelsIdRoute
   '/_private/_layout/hotels_/new': typeof PrivateLayoutHotelsNewRoute
@@ -291,6 +310,7 @@ export interface FileRouteTypes {
     | '/staffs'
     | '/'
     | '/login'
+    | '/excursions/$id'
     | '/excursions/new'
     | '/hotels/$id'
     | '/hotels/new'
@@ -303,6 +323,7 @@ export interface FileRouteTypes {
     | '/staffs'
     | '/'
     | '/login'
+    | '/excursions/$id'
     | '/excursions/new'
     | '/hotels/$id'
     | '/hotels/new'
@@ -317,6 +338,7 @@ export interface FileRouteTypes {
     | '/_private/_layout/staffs'
     | '/_private/_layout/'
     | '/_public/login/'
+    | '/_private/_layout/excursions_/$id'
     | '/_private/_layout/excursions_/new'
     | '/_private/_layout/hotels_/$id'
     | '/_private/_layout/hotels_/new'
@@ -368,6 +390,7 @@ export const routeTree = rootRoute
         "/_private/_layout/offices",
         "/_private/_layout/staffs",
         "/_private/_layout/",
+        "/_private/_layout/excursions_/$id",
         "/_private/_layout/excursions_/new",
         "/_private/_layout/hotels_/$id",
         "/_private/_layout/hotels_/new"
@@ -396,6 +419,10 @@ export const routeTree = rootRoute
     "/_public/login/": {
       "filePath": "_public/login/index.tsx",
       "parent": "/_public"
+    },
+    "/_private/_layout/excursions_/$id": {
+      "filePath": "_private/_layout/excursions_.$id.tsx",
+      "parent": "/_private/_layout"
     },
     "/_private/_layout/excursions_/new": {
       "filePath": "_private/_layout/excursions_.new.tsx",
