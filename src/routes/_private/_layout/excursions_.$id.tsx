@@ -101,6 +101,7 @@ function RouteComponent() {
   const imagesFieldArray = useFieldArray({
     control: form.control,
     name: '_images',
+    keyName: 'key',
   })
 
   const availableInterests = useAsyncList<{ id: number; title: string; address: string }>({
@@ -433,7 +434,7 @@ function RouteComponent() {
         </div>
         <div className='mb-6 flex flex-wrap items-center gap-2'>
           {imagesFieldArray.fields.map((field, index) => (
-            <div className='relative' key={field.id}>
+            <div className='relative' key={field.key}>
               <div className='absolute top-2 right-2'>
                 <Button
                   type='button'
