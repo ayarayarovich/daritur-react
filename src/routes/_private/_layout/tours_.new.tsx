@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { FileTrigger } from 'react-aria-components'
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -11,11 +11,12 @@ import BusSeatSelector from '@/components/bus-seat-selector'
 import Button from '@/components/ui/button'
 import DateField from '@/components/ui/date-field'
 import NumberField from '@/components/ui/number-field'
+import { Radio, RadioGroup } from '@/components/ui/radio'
 import Select from '@/components/ui/select'
 import TextArea from '@/components/ui/text-area'
 import TextField from '@/components/ui/text-field'
 import TimeField from '@/components/ui/time-field'
-import { extractErrorMessageFromAPIError, imgScheme, requiredFieldRefine } from '@/lib/utils'
+import { distributiveOmit, extractErrorMessageFromAPIError, imgScheme, requiredFieldRefine } from '@/lib/utils'
 import { ToursService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CalendarDate, getLocalTimeZone, Time } from '@internationalized/date'
@@ -45,7 +46,7 @@ const FoodTypes = {
   all_inclusive: 'Всё включено',
 } as Record<string, string>
 
-const formScheme = z.object({
+const baseFormScheme = z.object({
   name: z.string().refine(...requiredFieldRefine()),
   countryId: z.number().refine(...requiredFieldRefine()),
   description: z.string().refine(...requiredFieldRefine()),
@@ -76,10 +77,6 @@ const formScheme = z.object({
         .array(),
     })
     .array(),
-  regularMode: z
-    .union([z.literal('single'), z.literal('every_week'), z.literal('every_2_week'), z.literal('every_month')])
-    .refine(...requiredFieldRefine()),
-  regularFinishAt: z.instanceof(CalendarDate, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
   priceTransferAdult: z.number().refine(...requiredFieldRefine()),
   priceTransferChild: z.number().refine(...requiredFieldRefine()),
   priceParticipateAdult: z.number().refine(...requiredFieldRefine()),
@@ -89,6 +86,18 @@ const formScheme = z.object({
   durationDays: z.number().refine(...requiredFieldRefine()),
   _images: z.object({ img: imgScheme, previewUrl: z.string() }).array(),
 })
+
+const singleTourScheme = baseFormScheme.extend({
+  _regularMode: z.literal('single'),
+})
+
+const regularTourScheme = baseFormScheme.extend({
+  _regularMode: z.literal('regular'),
+  regularFinishAt: z.instanceof(CalendarDate, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
+  regularMode: z.string({ message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
+})
+
+const formScheme = z.discriminatedUnion('_regularMode', [singleTourScheme, regularTourScheme])
 
 function RouteComponent() {
   const navigate = Route.useNavigate()
@@ -106,12 +115,13 @@ function RouteComponent() {
       type: 'transfer_only',
       busType: '',
       isPublished: false,
-      regularMode: 'single',
       priceTransferAdult: 0,
       priceTransferChild: 0,
       priceParticipateAdult: 0,
       priceParticipateChild: 0,
-      discount: 0,
+      _regularMode: 'single',
+      discount: 1,
+      durationDays: 1,
       startPoints: [
         {
           cityId: 0,
@@ -150,10 +160,14 @@ function RouteComponent() {
     [availableBuses.data, formValues.busType],
   )
 
+  useEffect(() => {
+    console.log(formValues)
+  }, [formValues])
+
   const submitHandler: SubmitHandler<z.infer<typeof formScheme>> = async (vals) => {
     const action = async () => {
       const images = vals._images
-      const v = omit(vals, ['_images'])
+      const v = distributiveOmit(vals, ['_images'])
 
       const tour = await ToursService.createTour({
         ...v,
@@ -167,7 +181,8 @@ function RouteComponent() {
           ...v,
           dateAt: DateTime.fromJSDate(v.dateAt.toDate(getLocalTimeZone())),
         })),
-        regularFinishAt: DateTime.fromJSDate(v.regularFinishAt.toDate(getLocalTimeZone())),
+        regularMode: v._regularMode === 'single' ? 'single' : v.regularMode,
+        regularFinishAt: v._regularMode === 'regular' ? DateTime.fromJSDate(v.regularFinishAt.toDate(getLocalTimeZone())) : undefined,
       })
 
       await Promise.all(
@@ -180,12 +195,13 @@ function RouteComponent() {
       error: (v) => extractErrorMessageFromAPIError(v) || 'Что-то пошло не так',
     })
     Query.client.invalidateQueries({
-      queryKey: Queries.hotels._def,
+      queryKey: Queries.tours._def,
     })
     navigate({ to: '..' })
   }
 
-  const errorHandler: SubmitErrorHandler<z.infer<typeof formScheme>> = () => {
+  const errorHandler: SubmitErrorHandler<z.infer<typeof formScheme>> = (v) => {
+    console.log(v)
     toast.error('Создание туров еще не закончено')
   }
 
@@ -530,6 +546,61 @@ function RouteComponent() {
               )}
             />
           </div>
+          <div className='mb-6 grid grid-cols-[max-content_max-content] gap-4'>
+            <p>График проведения</p>
+            <Controller
+              control={form.control}
+              name='_regularMode'
+              render={({ field, fieldState }) => (
+                <RadioGroup
+                  {...omit(field, ['ref'])}
+                  isInvalid={fieldState.invalid}
+                  errorMessage={fieldState.error?.message}
+                  aria-label='График проведения'
+                >
+                  <Radio value='single'>Единоразово</Radio>
+                  <Radio value='regular'>Регулярно</Radio>
+                </RadioGroup>
+              )}
+            />
+            {formValues._regularMode === 'regular' && (
+              <>
+                <p>Регулярность</p>
+                <Controller
+                  control={form.control}
+                  name='regularMode'
+                  render={({ field, fieldState }) => (
+                    <RadioGroup
+                      {...omit(field, ['ref'])}
+                      isInvalid={fieldState.invalid}
+                      errorMessage={fieldState.error?.message}
+                      aria-label='Регулярность'
+                    >
+                      <Radio value='every_week'>Каждую неделю</Radio>
+                      <Radio value='every_2_week'>Каждые две недели</Radio>
+                      <Radio value='every_month'>Каждый месяц</Radio>
+                    </RadioGroup>
+                  )}
+                />
+                <p>Завершающий рейс</p>
+                <Controller
+                  control={form.control}
+                  name='regularFinishAt'
+                  render={({ field, fieldState }) => (
+                    <DateField
+                      size='sm'
+                      label='Дата'
+                      intent='primary'
+                      {...field}
+                      value={field.value || null}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={fieldState.invalid}
+                    />
+                  )}
+                />
+              </>
+            )}
+          </div>
           <div className='mb-2 flex items-center gap-2'>
             <p className='font-medium'>Фотографии</p>
             <FileTrigger
@@ -565,6 +636,30 @@ function RouteComponent() {
                 <img className='h-48' src={field.previewUrl} />
               </div>
             ))}
+          </div>
+          <div className='mb-6 grid grid-cols-[max-content_max-content] gap-4'>
+            <p>Статус тура</p>
+            <Controller
+              control={form.control}
+              name='approveType'
+              render={({ field, fieldState }) => (
+                <Select
+                  size='sm'
+                  label='Точка'
+                  intent='primary'
+                  onSelectionChange={(v) => field.onChange(v)}
+                  selectedKey={field.value?.toString() || null}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                  isDisabled={!availableCities.data?.length || field.disabled}
+                  {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
+                >
+                  <Item key='need_request'>Под запрос</Item>
+                  <Item key='auto_approve'>Моментальное подтверждение</Item>
+                  <Item key='no_approve'>Без подтверждения</Item>
+                </Select>
+              )}
+            />
           </div>
         </div>
         <div className='flex items-center gap-4'>

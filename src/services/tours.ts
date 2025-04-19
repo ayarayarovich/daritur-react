@@ -96,7 +96,7 @@ export const createTour = async (payload: {
   }[]
   isPublished: boolean
   regularMode: string
-  regularFinishAt: DateTime
+  regularFinishAt?: DateTime
   priceTransferAdult: number
   priceTransferChild: number
   priceParticipateAdult: number
@@ -108,11 +108,15 @@ export const createTour = async (payload: {
     ...payload,
     firstStartDateAt: payload.firstStartDateAt.toISO(),
     firstStartTimeAt: payload.firstStartTimeAt.toISOTime(),
+    startPoints: payload.startPoints.map((v) => ({
+      ...v,
+      timeAt: v.timeAt.toISOTime(),
+    })),
     route: payload.route.map((r) => ({
       ...r,
       dateAt: r.dateAt.toSQLDate(),
     })),
-    regularFinishAt: payload.regularFinishAt.toISO(),
+    regularFinishAt: payload.regularFinishAt?.toISO(),
   })
   return response.data
 }

@@ -3,6 +3,7 @@ import { AxiosError } from 'axios'
 import { cva, VariantProps } from 'class-variance-authority'
 import { ClassProp } from 'class-variance-authority/types'
 import { clsx, type ClassValue } from 'clsx'
+import { omit } from 'radashi'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -55,4 +56,8 @@ export const imgScheme = z
 export const timeToString = (time?: Time | null) => {
   if (!time) return '--:--'
   return `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}`
+}
+
+export function distributiveOmit<T, TKeys extends keyof T>(obj: T, keys: readonly TKeys[]) {
+  return omit(obj, keys) as DistributiveOmit<T, TKeys>
 }
