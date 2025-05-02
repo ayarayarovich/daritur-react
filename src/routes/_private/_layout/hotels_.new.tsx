@@ -1,4 +1,4 @@
-import { FileTrigger } from 'react-aria-components'
+import { FileTrigger, Pressable } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { HiOutlineOfficeBuilding, HiOutlinePhotograph, HiOutlineUpload, HiX } from 'react-icons/hi'
@@ -445,10 +445,12 @@ function RouteComponent() {
               }
             }}
           >
-            <Button className='flex w-fit items-center gap-1 text-sm opacity-75' intent='ghost' size='sm' type='button'>
-              <HiOutlinePhotograph />
-              Добавить фотографию
-            </Button>
+            <Pressable>
+              <button className='flex w-fit items-center gap-1 text-sm opacity-75 not-disabled:cursor-pointer' type='button'>
+                <HiOutlinePhotograph />
+                Добавить фотографию
+              </button>
+            </Pressable>
           </FileTrigger>
         </div>
         <div className='mb-4 flex flex-wrap items-center gap-2'>

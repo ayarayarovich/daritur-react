@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { FileTrigger } from 'react-aria-components'
+import { FileTrigger, Pressable } from 'react-aria-components'
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { BiBus } from 'react-icons/bi'
@@ -311,6 +311,10 @@ function RouteComponent() {
                     label='Дата'
                     intent='primary'
                     {...field}
+                    onChange={(v) => {
+                      console.log(v, v instanceof CalendarDate)
+                      field.onChange(v)
+                    }}
                     value={field.value || null}
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
@@ -613,10 +617,12 @@ function RouteComponent() {
                 }
               }}
             >
-              <Button className='flex w-fit items-center gap-1 text-sm opacity-75' intent='ghost' size='sm' type='button'>
-                <HiOutlinePhotograph />
-                Добавить фотографию
-              </Button>
+              <Pressable>
+                <button className='flex w-fit items-center gap-1 text-sm opacity-75 not-disabled:cursor-pointer' type='button'>
+                  <HiOutlinePhotograph />
+                  Добавить фотографию
+                </button>
+              </Pressable>
             </FileTrigger>
           </div>
           <div className='mb-4 flex flex-wrap items-center gap-2'>
