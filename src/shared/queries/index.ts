@@ -1,5 +1,6 @@
 import { AuthService, ExcursionsService, HotelsService, StaffService, ToursService } from '@/services'
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
+import { DateTime } from 'luxon'
 
 const me = createQueryKeys('me', {
   self: {
@@ -99,6 +100,10 @@ const tours = createQueryKeys('tours', {
   list: (config: { offset: number; limit: number; search?: string }) => ({
     queryKey: [{ config }],
     queryFn: () => ToursService.getToursList(config),
+  }),
+  calendar: (config: { date_gte: DateTime; date_lte: DateTime; search?: string }) => ({
+    queryKey: [{ config }],
+    queryFn: () => ToursService.getToursCalendar(config),
   }),
   // detail: (config: { id: number }) => ({
   //   queryKey: [{ config }],

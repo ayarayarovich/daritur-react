@@ -167,3 +167,28 @@ export const getTourBuses = async () => {
   const data = schema.parse(response.data)
   return data
 }
+
+export const getToursCalendar = async (payload: { search?: string; date_gte: DateTime; date_lte: DateTime }) => {
+  const response = await Axios.privateClient.get('/react-admin/tours/calendar', {
+    params: {
+      date_gte: payload.date_gte.toSQLDate(),
+      date_lte: payload.date_lte.toSQLDate(),
+      q: payload.search,
+    },
+  })
+
+  const scheme = z
+    .object({
+      date: z.string(),
+      items: z
+        .object({
+          tourId: z.number(),
+          title: z.string(),
+          time: z.string(),
+        })
+        .array(),
+    })
+    .array()
+
+  return scheme.parse(response.data)
+}
