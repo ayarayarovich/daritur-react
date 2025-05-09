@@ -1,8 +1,9 @@
-import { Time } from '@internationalized/date'
+import { CalendarDate, Time } from '@internationalized/date'
 import { AxiosError } from 'axios'
 import { cva, VariantProps } from 'class-variance-authority'
 import { ClassProp } from 'class-variance-authority/types'
 import { clsx, type ClassValue } from 'clsx'
+import { DateTime } from 'luxon'
 import { omit } from 'radashi'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
@@ -60,4 +61,18 @@ export const timeToString = (time?: Time | null) => {
 
 export function distributiveOmit<T, TKeys extends keyof T>(obj: T, keys: readonly TKeys[]) {
   return omit(obj, keys) as DistributiveOmit<T, TKeys>
+}
+
+export function toCalendarDate(datetime: DateTime) {
+  if (!datetime.isValid) {
+    return null
+  }
+  return new CalendarDate(datetime.year, datetime.month, datetime.day)
+}
+
+export function toTime(datetime: DateTime) {
+  if (!datetime.isValid) {
+    return null
+  }
+  return new Time(datetime.hour, datetime.minute, datetime.second)
 }

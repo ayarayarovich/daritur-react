@@ -3,7 +3,7 @@ import { useCalendar, useLocale } from 'react-aria'
 import { Button as AriaButton } from 'react-aria-components'
 import toast from 'react-hot-toast'
 import { BiChevronLeft, BiChevronRight } from 'react-icons/bi'
-import { HiPlus, HiTrash } from 'react-icons/hi2'
+import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2'
 import { useCalendarState } from 'react-stately'
 
 import { DataTable } from '@/components/data-table'
@@ -130,25 +130,25 @@ function RouteComponent() {
       size: 9999,
     }),
   ]
-  // if (infoQuery.data.canEdit) {
-  //   columns.push(
-  //     columnHelper.display({
-  //       id: 'edit',
-  //       cell: ({ row }) => (
-  //         <Button
-  //           type='button'
-  //           size='xs'
-  //           intent='ghost'
-  //           onPress={() => navigate({ to: '/tours/$id', params: { id: row.original.id.toString() } })}
-  //         >
-  //           <HiPencil />
-  //         </Button>
-  //       ),
-  //       enableSorting: false,
-  //       enableHiding: false,
-  //     }),
-  //   )
-  // }
+  if (infoQuery.data.canEdit) {
+    columns.push(
+      columnHelper.display({
+        id: 'edit',
+        cell: ({ row }) => (
+          <Button
+            type='button'
+            size='xs'
+            intent='ghost'
+            onPress={() => navigate({ to: './$id', params: { id: row.original.id.toString() } })}
+          >
+            <HiPencil />
+          </Button>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      }),
+    )
+  }
 
   const table = useReactTable({
     columns,

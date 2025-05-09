@@ -23,6 +23,7 @@ import { Route as PrivateLayoutHotelsImport } from './../routes/_private/_layout
 import { Route as PrivateLayoutExcursionsImport } from './../routes/_private/_layout/excursions'
 import { Route as PrivateLayoutBookingImport } from './../routes/_private/_layout/booking'
 import { Route as PrivateLayoutToursNewImport } from './../routes/_private/_layout/tours_.new'
+import { Route as PrivateLayoutToursIdImport } from './../routes/_private/_layout/tours_.$id'
 import { Route as PrivateLayoutHotelsNewImport } from './../routes/_private/_layout/hotels_.new'
 import { Route as PrivateLayoutHotelsIdImport } from './../routes/_private/_layout/hotels_.$id'
 import { Route as PrivateLayoutExcursionsNewImport } from './../routes/_private/_layout/excursions_.new'
@@ -98,6 +99,12 @@ const PrivateLayoutBookingRoute = PrivateLayoutBookingImport.update({
 const PrivateLayoutToursNewRoute = PrivateLayoutToursNewImport.update({
   id: '/tours_/new',
   path: '/tours/new',
+  getParentRoute: () => PrivateLayoutRouteRoute,
+} as any)
+
+const PrivateLayoutToursIdRoute = PrivateLayoutToursIdImport.update({
+  id: '/tours_/$id',
+  path: '/tours/$id',
   getParentRoute: () => PrivateLayoutRouteRoute,
 } as any)
 
@@ -262,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateLayoutHotelsNewImport
       parentRoute: typeof PrivateLayoutRouteImport
     }
+    '/_private/_layout/tours_/$id': {
+      id: '/_private/_layout/tours_/$id'
+      path: '/tours/$id'
+      fullPath: '/tours/$id'
+      preLoaderRoute: typeof PrivateLayoutToursIdImport
+      parentRoute: typeof PrivateLayoutRouteImport
+    }
     '/_private/_layout/tours_/new': {
       id: '/_private/_layout/tours_/new'
       path: '/tours/new'
@@ -288,6 +302,7 @@ interface PrivateLayoutRouteRouteChildren {
   PrivateLayoutExcursionsNewRoute: typeof PrivateLayoutExcursionsNewRoute
   PrivateLayoutHotelsIdRoute: typeof PrivateLayoutHotelsIdRoute
   PrivateLayoutHotelsNewRoute: typeof PrivateLayoutHotelsNewRoute
+  PrivateLayoutToursIdRoute: typeof PrivateLayoutToursIdRoute
   PrivateLayoutToursNewRoute: typeof PrivateLayoutToursNewRoute
 }
 
@@ -305,6 +320,7 @@ const PrivateLayoutRouteRouteChildren: PrivateLayoutRouteRouteChildren = {
   PrivateLayoutExcursionsNewRoute: PrivateLayoutExcursionsNewRoute,
   PrivateLayoutHotelsIdRoute: PrivateLayoutHotelsIdRoute,
   PrivateLayoutHotelsNewRoute: PrivateLayoutHotelsNewRoute,
+  PrivateLayoutToursIdRoute: PrivateLayoutToursIdRoute,
   PrivateLayoutToursNewRoute: PrivateLayoutToursNewRoute,
 }
 
@@ -351,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
   '/hotels/$id': typeof PrivateLayoutHotelsIdRoute
   '/hotels/new': typeof PrivateLayoutHotelsNewRoute
+  '/tours/$id': typeof PrivateLayoutToursIdRoute
   '/tours/new': typeof PrivateLayoutToursNewRoute
 }
 
@@ -370,6 +387,7 @@ export interface FileRoutesByTo {
   '/excursions/new': typeof PrivateLayoutExcursionsNewRoute
   '/hotels/$id': typeof PrivateLayoutHotelsIdRoute
   '/hotels/new': typeof PrivateLayoutHotelsNewRoute
+  '/tours/$id': typeof PrivateLayoutToursIdRoute
   '/tours/new': typeof PrivateLayoutToursNewRoute
 }
 
@@ -392,6 +410,7 @@ export interface FileRoutesById {
   '/_private/_layout/excursions_/new': typeof PrivateLayoutExcursionsNewRoute
   '/_private/_layout/hotels_/$id': typeof PrivateLayoutHotelsIdRoute
   '/_private/_layout/hotels_/new': typeof PrivateLayoutHotelsNewRoute
+  '/_private/_layout/tours_/$id': typeof PrivateLayoutToursIdRoute
   '/_private/_layout/tours_/new': typeof PrivateLayoutToursNewRoute
 }
 
@@ -413,6 +432,7 @@ export interface FileRouteTypes {
     | '/excursions/new'
     | '/hotels/$id'
     | '/hotels/new'
+    | '/tours/$id'
     | '/tours/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -431,6 +451,7 @@ export interface FileRouteTypes {
     | '/excursions/new'
     | '/hotels/$id'
     | '/hotels/new'
+    | '/tours/$id'
     | '/tours/new'
   id:
     | '__root__'
@@ -451,6 +472,7 @@ export interface FileRouteTypes {
     | '/_private/_layout/excursions_/new'
     | '/_private/_layout/hotels_/$id'
     | '/_private/_layout/hotels_/new'
+    | '/_private/_layout/tours_/$id'
     | '/_private/_layout/tours_/new'
   fileRoutesById: FileRoutesById
 }
@@ -508,6 +530,7 @@ export const routeTree = rootRoute
         "/_private/_layout/excursions_/new",
         "/_private/_layout/hotels_/$id",
         "/_private/_layout/hotels_/new",
+        "/_private/_layout/tours_/$id",
         "/_private/_layout/tours_/new"
       ]
     },
@@ -565,6 +588,10 @@ export const routeTree = rootRoute
     },
     "/_private/_layout/hotels_/new": {
       "filePath": "_private/_layout/hotels_.new.tsx",
+      "parent": "/_private/_layout"
+    },
+    "/_private/_layout/tours_/$id": {
+      "filePath": "_private/_layout/tours_.$id.tsx",
       "parent": "/_private/_layout"
     },
     "/_private/_layout/tours_/new": {

@@ -105,10 +105,10 @@ const tours = createQueryKeys('tours', {
     queryKey: [{ config }],
     queryFn: () => ToursService.getToursCalendar(config),
   }),
-  // detail: (config: { id: number }) => ({
-  //   queryKey: [{ config }],
-  //   queryFn: () => ToursService.getTour(config),
-  // }),
+  detail: (config: { id: number }) => ({
+    queryKey: [{ config }],
+    queryFn: () => ToursService.getTour(config),
+  }),
   info: {
     queryKey: null,
     queryFn: ToursService.getToursInfo,

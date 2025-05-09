@@ -125,6 +125,56 @@ export const createTour = async (payload: {
   return response.data
 }
 
+export const updateTour = async (payload: {
+  tourId: number
+  countryId: number
+  name: string
+  description: string
+  type: string
+  busType: string
+  firstStartDateAt: DateTime
+  firstStartTimeAt: DateTime
+  durationDays: number
+  startPoints: {
+    cityId: number
+    timeAt: DateTime
+  }[]
+  route: {
+    cityId: number
+    dateAt: DateTime
+    nights: number
+    hotels: {
+      hotelId: number
+      foodType: string
+    }[]
+  }[]
+  isPublished: boolean
+  regularMode: string
+  regularFinishAt?: DateTime
+  priceTransferAdult: number
+  priceTransferChild: number
+  priceParticipateAdult: number
+  priceParticipateChild: number
+  discount: number
+  approveType: string
+}) => {
+  const response = await Axios.privateClient.put('/react-admin/tours/' + payload.tourId, {
+    ...payload,
+    firstStartDateAt: payload.firstStartDateAt.toISO(),
+    firstStartTimeAt: payload.firstStartTimeAt.toISOTime(),
+    startPoints: payload.startPoints.map((v) => ({
+      ...v,
+      timeAt: v.timeAt.toISOTime(),
+    })),
+    route: payload.route.map((r) => ({
+      ...r,
+      dateAt: r.dateAt.toSQLDate(),
+    })),
+    regularFinishAt: payload.regularFinishAt?.toISO(),
+  })
+  return response.data
+}
+
 export const getTourBuses = async () => {
   const response = await Axios.privateClient.get('/react-admin/tours/buses')
   const schema = z
@@ -170,6 +220,79 @@ export const getTourBuses = async () => {
     .array()
   const data = schema.parse(response.data)
   return data
+}
+
+export const getTour = async (payload: { id: number }) => {
+  const response = await Axios.privateClient.get('/react-admin/tours/' + payload.id)
+  const schema = z.object({
+    id: z.number(),
+    name: z.string(),
+    description: z.string(),
+    type: z.string(),
+    countryId: z.number(),
+    busType: z.string(),
+    firstStartDateAt: z.string().transform((v) => DateTime.fromISO(v)),
+    firstStartTimeAt: z.string().transform((v) => DateTime.fromISO(v)),
+    durationDays: z.number(),
+    startPoints: z
+      .object({
+        id: z.number(),
+        city: z.object({
+          id: z.number(),
+          name: z.string(),
+        }),
+        timeAt: z.string().transform((v) => DateTime.fromISO(v)),
+      })
+      .array(),
+    route: z
+      .object({
+        id: z.number(),
+        city: z.object({
+          id: z.number(),
+          name: z.string(),
+        }),
+        dateAt: z.string().transform((v) => DateTime.fromISO(v)),
+        nights: z.number(),
+        hotels: z
+          .object({
+            id: z.number(),
+            hotel: z.object({
+              id: z.number(),
+              name: z.string(),
+            }),
+            foodType: z.string(),
+          })
+          .array(),
+      })
+      .array(),
+    isPublished: z.boolean(),
+    regularMode: z.string(),
+    regularFinishAt: z
+      .string()
+      .nullable()
+      .transform((v) => (v ? DateTime.fromISO(v) : null)),
+    priceTransferAdult: z.number(),
+    priceTransferChild: z.number(),
+    priceParticipateAdult: z.number(),
+    priceParticipateChild: z.number(),
+    discount: z.number(),
+    approveType: z.string(),
+    operator: z.object({
+      operatorId: z.number(),
+      name: z.string(),
+    }),
+    images: z
+      .object({
+        id: z.number(),
+        url: z.string(),
+      })
+      .array(),
+    busSchema: z.object({
+      busType: z.string(),
+      name: z.string(),
+    }),
+  })
+  return schema.parse(response.data)
 }
 
 export const getToursCalendar = async (payload: { search?: string; date_gte: DateTime; date_lte: DateTime }) => {
