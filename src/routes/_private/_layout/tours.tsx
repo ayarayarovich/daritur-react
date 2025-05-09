@@ -27,7 +27,7 @@ import Queries from '@/shared/queries'
 export const Route = createFileRoute('/_private/_layout/tours')({
   component: RouteComponent,
   loader: async () => {
-    await Promise.all([Query.client.prefetchQuery(Queries.employees.info)])
+    await Promise.all([Query.client.prefetchQuery(Queries.tours.info)])
   },
   validateSearch: z.object({
     pageIndex: z
@@ -260,7 +260,7 @@ function ToursCalendar() {
     {
       'aria-label': 'Event date',
     },
-    state,
+    state as never,
   )
 
   const focusToday = () => {

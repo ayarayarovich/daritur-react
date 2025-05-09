@@ -11,6 +11,7 @@ import Select from '@/components/ui/select'
 import TextArea from '@/components/ui/text-area'
 import TextField from '@/components/ui/text-field'
 import TimeField from '@/components/ui/time-field'
+import { FoodTypes, PlaceTypes } from '@/constants'
 import { extractErrorMessageFromAPIError, imgScheme, requiredFieldRefine } from '@/lib/utils'
 import { HotelsService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,21 +36,6 @@ export const Route = createFileRoute('/_private/_layout/hotels_/$id')({
     }
   },
 })
-
-const PlaceTypes = {
-  single: 'Одноместный',
-  double: 'Двухместный',
-  double_with_extra: 'Двухместный + дополнительное место',
-  triple: 'Трехместный',
-  child_without_place: 'Ребенок без места',
-} as Record<string, string>
-
-const FoodTypes = {
-  pension: 'Полный пансион',
-  half_pension: 'Полупансион',
-  breakfast: 'Завтрак',
-  all_inclusive: 'Всё включено',
-} as Record<string, string>
 
 const formScheme = z.object({
   id: z.number().refine(...requiredFieldRefine()),
@@ -396,6 +382,7 @@ function RouteComponent() {
                   label='Описание'
                   intent='primary'
                   {...field}
+                  value={(field.value ?? null) as never}
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />
@@ -413,6 +400,7 @@ function RouteComponent() {
                   label='Описание'
                   intent='primary'
                   {...field}
+                  value={(field.value ?? null) as never}
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />

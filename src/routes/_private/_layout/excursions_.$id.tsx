@@ -248,6 +248,7 @@ function RouteComponent() {
                   label='Начало'
                   intent='primary'
                   {...field}
+                  value={(field.value ?? null) as never}
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />
@@ -265,6 +266,7 @@ function RouteComponent() {
                   label='Окончание'
                   intent='primary'
                   {...field}
+                  value={(field.value ?? null) as never}
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />

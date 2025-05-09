@@ -73,14 +73,29 @@ const inputCva = twMergifyCva(
   }),
 )
 
-type Variants = VariantProps<typeof labelCva> & VariantProps<typeof boxCva> & VariantProps<typeof buttonCva> & VariantProps<typeof inputCva>
+const wrapperCva = twMergifyCva(
+  cva([], {
+    variants: {
+      grow: {
+        true: ['grow'],
+        false: null,
+      },
+    },
+  }),
+)
+
+type Variants = VariantProps<typeof wrapperCva> &
+  VariantProps<typeof labelCva> &
+  VariantProps<typeof boxCva> &
+  VariantProps<typeof buttonCva> &
+  VariantProps<typeof inputCva>
 
 interface Props<T extends object>
   extends Omit<AriaComboBoxOptions<T>, 'inputRef' | 'buttonRef' | 'listBoxRef' | 'popoverRef'>,
     CollectionBase<T>,
     Omit<Variants, 'isDisabled' | 'isInvalid'> {}
 
-export default function ComboBox<T extends object>({ size = 'md', intent = 'primary', isInvalid, ...props }: Props<T>) {
+export default function ComboBox<T extends object>({ size = 'md', intent = 'primary', grow = false, isInvalid, ...props }: Props<T>) {
   const { contains } = useFilter({ sensitivity: 'base' })
   const state = useComboBoxState({ ...props, defaultFilter: contains })
 
@@ -104,6 +119,7 @@ export default function ComboBox<T extends object>({ size = 'md', intent = 'prim
 
   return (
     <div
+      className={wrapperCva({ grow })}
       style={
         {
           '--trigger-width': width ? `${width.toString()}px` : 'auto',
@@ -124,6 +140,7 @@ export default function ComboBox<T extends object>({ size = 'md', intent = 'prim
           <Button
             {...buttonProps}
             ref={buttonRef}
+            type='button'
             className={buttonCva({ intent, size, className: 'flex cursor-pointer items-center justify-between gap-2' })}
           >
             <HiArrowDown className={cn('transition-transform', state.isOpen ? 'rotate-180' : 'rotate-0')} />
@@ -142,7 +159,10 @@ export default function ComboBox<T extends object>({ size = 'md', intent = 'prim
       )}
       {state.isOpen && (
         <Popover state={state} ref={popoverRef} triggerRef={boxRef} placement='bottom'>
-          <div className='py-2.5' style={{ minWidth: width ? width.toString() + 'px' : 'auto' }}>
+          <div
+            className='py-2.5'
+            style={{ maxWidth: width ? width.toString() + 'px' : 'auto', minWidth: width ? width.toString() + 'px' : 'auto' }}
+          >
             <ListBox {...listBoxProps} state={state} ref={listBoxRef}>
               {props.children as CollectionChildren<object>}
             </ListBox>

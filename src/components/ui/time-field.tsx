@@ -61,8 +61,8 @@ const TimeField = forwardRef(
     const state = useTimeFieldState({
       ...props,
       locale: 'ru-RU',
-    })
-    const { labelProps, fieldProps, descriptionProps, errorMessageProps, isInvalid } = useTimeField(props, state, objRef)
+    } as never)
+    const { labelProps, fieldProps, descriptionProps, errorMessageProps, isInvalid } = useTimeField(props, state as never, objRef)
 
     return (
       <div>
@@ -93,7 +93,7 @@ const TimeField = forwardRef(
 
 const DateSegment = ({ segment, state }: DateSegmentProps & { state: DateFieldState }) => {
   const ref = useRef(null)
-  const { segmentProps } = useDateSegment(segment, state, ref)
+  const { segmentProps } = useDateSegment(segment, state as never, ref)
 
   return (
     <div {...segmentProps} ref={ref} className={`segment ${segment.isPlaceholder ? 'placeholder' : ''}`}>

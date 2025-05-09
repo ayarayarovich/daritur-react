@@ -18,7 +18,7 @@ interface Props extends AriaCalendarGridProps {
 
 export default function EventsCalendarGrid({ state, events, ...props }: Props) {
   const { locale } = useLocale()
-  const { gridProps, headerProps, weekDays } = useCalendarGrid(props, state)
+  const { gridProps, headerProps, weekDays } = useCalendarGrid(props, state as never)
   const weeksInMonth = useMemo(() => {
     const start = startOfWeek(state.visibleRange.start as unknown as DateValue, locale)
     const end = endOfWeek(state.visibleRange.end as unknown as DateValue, locale)
@@ -61,7 +61,7 @@ export default function EventsCalendarGrid({ state, events, ...props }: Props) {
               {state
                 .getDatesInWeek(weekIndex)
                 .map((date, i) =>
-                  date ? <EventsCalendarCell groupedEvents={groupedEvents} key={i} state={state} date={date} /> : <td key={i} />,
+                  date ? <EventsCalendarCell groupedEvents={groupedEvents} key={i} state={state} date={date as never} /> : <td key={i} />,
                 )}
             </tr>
           ))}
@@ -84,7 +84,7 @@ interface EventsCalendarCellProps extends AriaCalendarCellProps {
 
 function EventsCalendarCell({ state, date, groupedEvents }: EventsCalendarCellProps) {
   const ref = useRef(null)
-  const { cellProps, buttonProps, isOutsideVisibleRange, formattedDate } = useCalendarCell({ date }, state, ref)
+  const { cellProps, buttonProps, isOutsideVisibleRange, formattedDate } = useCalendarCell({ date }, state as never, ref)
 
   return (
     <td {...cellProps} className={cn('border-gray-5 relative border', isOutsideVisibleRange && 'bg-gray-6')}>

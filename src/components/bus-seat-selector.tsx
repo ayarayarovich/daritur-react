@@ -4,7 +4,9 @@ import { LuToilet } from 'react-icons/lu'
 import { PiMicrophoneStageFill } from 'react-icons/pi'
 import { TbSteeringWheelFilled } from 'react-icons/tb'
 
+import { boxCva } from '@/cvas'
 import { cn } from '@/lib/utils'
+import { cloneDeep } from 'radashi'
 
 interface Props {
   floors: {
@@ -34,18 +36,22 @@ interface Props {
       )[]
     }[]
   }[]
+
+  disabled?: boolean
+  onChange?: (customers: { customerId: number; customerName: string; seatNumber: number }[]) => void
+  value?: { customerId: number; customerName: string; seatNumber: number }[]
 }
 
-export default function BusSeatSelector({ floors }: Props) {
+export default function BusSeatSelector({ floors, value = [], onChange, disabled }: Props) {
   const [currentFloorIdx, setCurrentFloorIdx] = useState(0)
   const cf = useMemo(() => floors[currentFloorIdx], [floors, currentFloorIdx])
   const cols = cf.lines.length
   const rows = Math.max(...cf.lines.map((v) => v.items.length))
 
-  console.log({ cols, rows })
+  const [currentCustomerID, setCurrentCustomerID] = useState<number | null>(null)
 
   return (
-    <div>
+    <div className='w-fit'>
       <div className='mb-1.5 text-sm font-semibold'>
         {floors
           .flatMap((v, idx) => [
@@ -63,12 +69,35 @@ export default function BusSeatSelector({ floors }: Props) {
           gridTemplateRows: `repeat(${rows}, minmax(2rem, min-content))`,
         }}
       >
-        {cf.lines.flatMap((v) =>
-          v.items.map((v) => (
-            <button type='button' disabled>
+        {cf.lines.flatMap((v, idxOuter) =>
+          v.items.map((v, idx) => (
+            <button
+              key={v.placeType + ':' + idx + ':' + idxOuter}
+              type='button'
+              className='not-disabled:cursor-pointer'
+              onClick={() => {
+                const _val = cloneDeep(value)
+                for (const t of _val) {
+                  if (v.placeType === 'seat' && t.customerId === currentCustomerID) {
+                    t.seatNumber = v.number
+                    break
+                  }
+                }
+                if (onChange) {
+                  onChange(_val)
+                }
+              }}
+              disabled={disabled || v.placeType !== 'seat' || (v.placeType === 'seat' && !!v.isBlocked)}
+            >
               {v.placeType === 'seat' && (
                 <div className='relative flex items-center justify-center' title={`Место ${v.number}`}>
-                  <ArmchairIcon className='text-gray-5 h-8' />
+                  <ArmchairIcon
+                    className={cn(
+                      'text-gray-5 h-8',
+                      v.isBlocked && 'text-red-400',
+                      !!value.find((t) => t.seatNumber === v.number) && 'text-teal-500',
+                    )}
+                  />
                   <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-sm bg-white px-0.5 py-px text-[0.625rem] leading-none font-bold'>
                     {v.number}
                   </div>
@@ -98,6 +127,28 @@ export default function BusSeatSelector({ floors }: Props) {
           )),
         )}
       </div>
+      {!disabled && (
+        <div className='mt-4'>
+          {value.length > 0 && <div className='mb-0 font-medium'>Выбор места</div>}
+          {value.map((v, idx) => (
+            <button
+              key={[v.customerId, idx].join(':')}
+              type='button'
+              className={cn(
+                'flex w-full items-center gap-2 rounded-md p-2 not-disabled:cursor-pointer',
+                v.customerId === currentCustomerID && 'bg-gray-5',
+              )}
+              onClick={() => setCurrentCustomerID(v.customerId)}
+              disabled={disabled}
+            >
+              <p className='text-sm font-semibold'>{v.customerName}</p>
+              <div className='grow'></div>
+              <div>Место</div>
+              <div className={boxCva({})}>{v.seatNumber || '__'}</div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -106,8 +157,8 @@ function ArmchairIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox='0 0 32 35' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
       <path
-        fill-rule='evenodd'
-        clip-rule='evenodd'
+        fillRule='evenodd'
+        clipRule='evenodd'
         d='M2.49996 24C2.49996 26.9168 4.88098 29.2813 7.81814 29.2813L11.2188 29.2813L12.3181 29.2813L12.3181 31.7188L7.81814 31.7188C3.52538 31.7188 0.0454102 28.2629 0.0454102 24L0.0454104 11C0.0454105 6.73697 3.52538 3.28125 7.81814 3.28125L12.3181 3.28125L12.3181 5.71875L11.975 5.71875L7.81814 5.71875C4.88098 5.71875 2.49996 8.08329 2.49996 11L2.49996 24Z'
         fill='currentColor'
       />
@@ -117,8 +168,8 @@ function ArmchairIcon(props: SVGProps<SVGSVGElement>) {
         opacity='0.3'
       />
       <path
-        fill-rule='evenodd'
-        clip-rule='evenodd'
+        fillRule='evenodd'
+        clipRule='evenodd'
         d='M14.3638 34.9688C11.8785 34.9688 9.86377 32.968 9.86377 30.5C9.86377 28.032 11.8785 26.0313 14.3638 26.0313L16.8183 26.0313C19.3036 26.0313 21.3183 24.0305 21.3183 21.5625L21.3183 13.4375C21.3183 10.9695 19.3036 8.96875 16.8183 8.96875L14.3638 8.96875C11.8785 8.96875 9.86377 6.96805 9.86377 4.5C9.86377 2.03195 11.8785 0.03125 14.3638 0.0312501L24.182 0.0312502C28.4748 0.0312502 31.9547 3.48697 31.9547 7.75L31.9547 27.25C31.9547 31.5129 28.4748 34.9688 24.182 34.9688L14.3638 34.9688ZM12.3183 30.5C12.3183 31.6218 13.2341 32.5313 14.3638 32.5313L24.182 32.5313C27.1191 32.5313 29.5001 30.1668 29.5001 27.25L29.5001 7.75C29.5001 4.83329 27.1191 2.46875 24.182 2.46875L14.3638 2.46875C13.2341 2.46875 12.3183 3.3781 12.3183 4.5C12.3183 5.6219 13.2341 6.53125 14.3638 6.53125L16.8183 6.53125C20.6592 6.53125 23.7729 9.6233 23.7729 13.4375L23.7729 21.5625C23.7729 25.3767 20.6592 28.4688 16.8183 28.4688L14.3638 28.4688C13.2341 28.4688 12.3183 29.3782 12.3183 30.5Z'
         fill='currentColor'
       />

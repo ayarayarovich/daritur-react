@@ -1,9 +1,24 @@
 import { Dialog, DialogProps, Modal, ModalOverlay } from 'react-aria-components'
 
+import { twMergifyCva } from '@/lib/utils'
+import { cva, VariantProps } from 'class-variance-authority'
 import { AnimatePresence, motion } from 'motion/react'
 
 const MotionModal = motion.create(Modal)
 const MotionModalOverlay = motion.create(ModalOverlay)
+
+const modalCva = twMergifyCva(
+  cva(['w-full max-w-lg flex-1'], {
+    variants: {
+      size: {
+        lg: ['max-w-lg'],
+        xl2: ['max-w-2xl'],
+      },
+    },
+  }),
+)
+
+type Variants = VariantProps<typeof modalCva>
 
 type Props = {
   isOpen?: boolean
@@ -11,7 +26,7 @@ type Props = {
   children?: DialogProps['children']
 }
 
-export default function BaseModal({ isOpen, onOpenChange, children }: Props) {
+export default function BaseModal({ isOpen, onOpenChange, children, size = 'lg' }: Props & Variants) {
   return (
     <>
       <AnimatePresence>
@@ -50,7 +65,7 @@ export default function BaseModal({ isOpen, onOpenChange, children }: Props) {
                     opacity: 0,
                     scale: 0.9,
                   }}
-                  className='w-full max-w-lg flex-1'
+                  className={modalCva({ size })}
                 >
                   <Dialog className='ring-gray-4 w-full rounded-xl bg-white ring-offset-0 transition-shadow outline-none focus:ring-2'>
                     {children}

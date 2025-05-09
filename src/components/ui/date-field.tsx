@@ -63,8 +63,8 @@ const DateField = forwardRef(
       ...props,
       locale: 'ru-RU',
       createCalendar,
-    })
-    const { labelProps, fieldProps, descriptionProps, errorMessageProps, isInvalid } = useDateField(props, state, objRef)
+    } as never)
+    const { labelProps, fieldProps, descriptionProps, errorMessageProps, isInvalid } = useDateField(props, state as never, objRef)
 
     return (
       <div>
@@ -95,7 +95,7 @@ const DateField = forwardRef(
 
 const DateSegment = ({ segment, state }: DateSegmentProps & { state: DateFieldState }) => {
   const ref = useRef(null)
-  const { segmentProps } = useDateSegment(segment, state, ref)
+  const { segmentProps } = useDateSegment(segment, state as never, ref)
 
   return (
     <div {...segmentProps} ref={ref} className={`segment ${segment.isPlaceholder ? 'placeholder' : ''}`}>

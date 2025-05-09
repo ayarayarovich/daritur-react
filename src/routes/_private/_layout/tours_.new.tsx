@@ -16,6 +16,7 @@ import Select from '@/components/ui/select'
 import TextArea from '@/components/ui/text-area'
 import TextField from '@/components/ui/text-field'
 import TimeField from '@/components/ui/time-field'
+import { ApproveTypes, FoodTypes, TourTypes } from '@/constants'
 import { distributiveOmit, extractErrorMessageFromAPIError, imgScheme, requiredFieldRefine } from '@/lib/utils'
 import { ToursService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -32,19 +33,6 @@ import Queries from '@/shared/queries'
 export const Route = createFileRoute('/_private/_layout/tours_/new')({
   component: RouteComponent,
 })
-
-const TourTypes = {
-  transfer_only: 'Проезд',
-  transfer_and_hotel: 'Проезд + Проживание',
-  transfer_and_hotel_optional: 'Проезд + Проживание (по желанию)',
-} as const
-
-const FoodTypes = {
-  pension: 'Полный пансион',
-  half_pension: 'Полупансион',
-  breakfast: 'Завтрак',
-  all_inclusive: 'Всё включено',
-} as Record<string, string>
 
 const baseFormScheme = z.object({
   name: z.string().refine(...requiredFieldRefine()),
@@ -315,7 +303,7 @@ function RouteComponent() {
                       console.log(v, v instanceof CalendarDate)
                       field.onChange(v)
                     }}
-                    value={field.value || null}
+                    value={(field.value || null) as never}
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
                   />
@@ -333,7 +321,7 @@ function RouteComponent() {
                     label='Время'
                     intent='primary'
                     {...field}
-                    value={field.value || null}
+                    value={(field.value || null) as never}
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
                   />
@@ -414,7 +402,7 @@ function RouteComponent() {
                         label='Время'
                         intent='primary'
                         {...field}
-                        value={field.value || null}
+                        value={(field.value || null) as never}
                         errorMessage={fieldState.error?.message}
                         isInvalid={fieldState.invalid}
                       />
@@ -596,7 +584,7 @@ function RouteComponent() {
                       label='Дата'
                       intent='primary'
                       {...field}
-                      value={field.value || null}
+                      value={(field.value || null) as never}
                       errorMessage={fieldState.error?.message}
                       isInvalid={fieldState.invalid}
                     />
@@ -660,9 +648,9 @@ function RouteComponent() {
                   isDisabled={!availableCities.data?.length || field.disabled}
                   {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
                 >
-                  <Item key='need_request'>Под запрос</Item>
-                  <Item key='auto_approve'>Моментальное подтверждение</Item>
-                  <Item key='no_approve'>Без подтверждения</Item>
+                  {Object.entries(ApproveTypes).map(([key, val]) => (
+                    <Item key={key}>{val}</Item>
+                  ))}
                 </Select>
               )}
             />
@@ -745,7 +733,7 @@ function RouteItem({ fieldIdx, remove }: { fieldIdx: number; remove: (index?: nu
                   label='Дата'
                   intent='primary'
                   {...field}
-                  value={field.value || null}
+                  value={(field.value || null) as never}
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />

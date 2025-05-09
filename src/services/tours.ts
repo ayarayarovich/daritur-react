@@ -15,20 +15,24 @@ export const getToursInfo = async () => {
   return data
 }
 
-export const getToursList = async (payload: {
-  search?: string
-  offset: number
-  limit: number
-  is_new?: boolean
-  is_draft?: boolean
-  is_archive?: boolean
-}) => {
+export const getToursList = async (
+  payload: {
+    search?: string
+    offset: number
+    limit: number
+    is_new?: boolean
+    is_draft?: boolean
+    is_archive?: boolean
+  },
+  signal?: AbortSignal,
+) => {
   const response = await Axios.privateClient.get('/react-admin/tours', {
     params: {
       offset: payload.offset,
       limit: payload.limit,
       q: payload.search,
     },
+    signal,
   })
   const schema = z.object({
     count: z.number(),

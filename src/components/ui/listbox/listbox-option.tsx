@@ -26,6 +26,7 @@ export default function Option<T extends object>({ item, state }: OptionProps<T>
       data-focus-visible={isFocusVisible}
     >
       <button
+        type='button'
         className={clsx(
           'font-montserrat flex w-full cursor-pointer justify-start px-3 py-1 text-start text-sm font-medium outline-none disabled:cursor-default',
           isSelected && 'bg-gray-4',

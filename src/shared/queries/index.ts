@@ -1,4 +1,4 @@
-import { AuthService, ExcursionsService, HotelsService, StaffService, ToursService } from '@/services'
+import { AuthService, BookingService, CustomersService, ExcursionsService, HotelsService, StaffService, ToursService } from '@/services'
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { DateTime } from 'luxon'
 
@@ -99,7 +99,7 @@ const hotels = createQueryKeys('hotels', {
 const tours = createQueryKeys('tours', {
   list: (config: { offset: number; limit: number; search?: string }) => ({
     queryKey: [{ config }],
-    queryFn: () => ToursService.getToursList(config),
+    queryFn: ({ signal }) => ToursService.getToursList(config, signal),
   }),
   calendar: (config: { date_gte: DateTime; date_lte: DateTime; search?: string }) => ({
     queryKey: [{ config }],
@@ -119,6 +119,32 @@ const tours = createQueryKeys('tours', {
   },
 })
 
-const Queries = mergeQueryKeys(me, employees, offices, excursions, hotels, interests, tours)
+const booking = createQueryKeys('booking', {
+  list: (config: { offset: number; limit: number; search?: string }) => ({
+    queryKey: [{ config }],
+    queryFn: () => BookingService.listBookings(config),
+  }),
+  prepareDate: (config: { tour_id: number }) => ({
+    queryKey: [{ config }],
+    queryFn: () => BookingService.prepareDate(config),
+  }),
+  detail: (config: { id: number }) => ({
+    queryKey: [{ config }],
+    queryFn: () => BookingService.getBooking(config),
+  }),
+  info: {
+    queryKey: null,
+    queryFn: BookingService.getBookingsInfo,
+  },
+})
+
+const customers = createQueryKeys('customers', {
+  list: (config: { offset: number; limit: number; search?: string }) => ({
+    queryKey: [{ config }],
+    queryFn: ({ signal }) => CustomersService.listCustomers(config, signal),
+  }),
+})
+
+const Queries = mergeQueryKeys(me, employees, offices, excursions, hotels, interests, tours, booking, customers)
 
 export default Queries

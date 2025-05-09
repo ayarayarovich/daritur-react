@@ -7,20 +7,21 @@ import Button from '@/components/ui/button'
 import Checkbox from '@/components/ui/checkbox'
 import TextField from '@/components/ui/text-field'
 import { extractErrorMessageFromAPIError } from '@/lib/utils'
-import { ExcursionsService } from '@/services'
+import { BookingService } from '@/services'
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
+import { DateTime } from 'luxon'
 import { z } from 'zod'
 
 import { Query } from '@/shared'
 import Queries from '@/shared/queries'
 
-export const Route = createFileRoute('/_private/_layout/excursions')({
+export const Route = createFileRoute('/_private/_layout/booking')({
   component: RouteComponent,
   loader: async () => {
-    await Promise.all([Query.client.prefetchQuery(Queries.excursions.info)])
+    await Promise.all([Query.client.prefetchQuery(Queries.booking.info)])
   },
   validateSearch: z.object({
     pageIndex: z
@@ -70,9 +71,9 @@ function RouteComponent() {
 
   const debouncedSearch = useDebounce(searchParams.search, 500)
 
-  const infoQuery = useSuspenseQuery(Queries.excursions.info)
+  const infoQuery = useSuspenseQuery(Queries.booking.info)
   const listQuery = useQuery({
-    ...Queries.excursions.list({
+    ...Queries.booking.list({
       offset: searchParams.pageIndex * searchParams.pageSize,
       limit: searchParams.pageSize,
       search: debouncedSearch,
@@ -105,17 +106,33 @@ function RouteComponent() {
       enableSorting: false,
       enableHiding: false,
     }),
-    columnHelper.accessor('title', {
-      header: 'Название',
+    columnHelper.accessor('number', {
+      header: '№ заявки',
       size: 9999,
     }),
-    columnHelper.accessor('description', {
-      header: 'Описание',
+    columnHelper.accessor('tour.id', {
+      header: '№ тура',
       size: 9999,
     }),
-    columnHelper.accessor('interestsPoints', {
-      header: 'Точки интереса',
+    columnHelper.accessor('tour.name', {
+      header: 'Название тура',
       size: 9999,
+    }),
+    columnHelper.accessor('createdAt', {
+      header: 'Дата создания',
+      size: 9999,
+      cell: (ctx) => ctx.getValue().toLocaleString(DateTime.DATE_HUGE),
+    }),
+    columnHelper.accessor('status', {
+      header: 'Статус',
+      size: 9999,
+      cell: (ctx) =>
+        ({
+          created: 'Создана',
+          approved: 'Подтверждена',
+          paid: 'Оплачена',
+          declined: 'Отклонена',
+        })[ctx.getValue()] || 'Неизвестно',
     }),
   ]
   if (infoQuery.data.canEdit) {
@@ -127,7 +144,7 @@ function RouteComponent() {
             type='button'
             size='xs'
             intent='ghost'
-            onPress={() => navigate({ to: '/excursions/$id', params: { id: row.original.id.toString() } })}
+            onPress={() => navigate({ to: './$id', params: { id: row.original.id.toString() } })}
           >
             <HiPencil />
           </Button>
@@ -164,13 +181,13 @@ function RouteComponent() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: ExcursionsService.deleteExcursion,
+    mutationFn: BookingService.deleteBookings,
     onSuccess: async () => {
       await Query.client.invalidateQueries({
-        queryKey: Queries.excursions._def,
+        queryKey: Queries.booking._def,
       })
       table.toggleAllRowsSelected(false)
-      toast.success('Экскурсии удалены!')
+      toast.success('Заявки удалены!')
     },
     onError: (err) => {
       toast.error(extractErrorMessageFromAPIError(err) || 'Что-то пошло не так')
@@ -180,20 +197,22 @@ function RouteComponent() {
   return (
     <div className='flex flex-col items-stretch gap-16 px-5 py-22'>
       <div className='flex flex-col items-stretch gap-3'>
-        <div className='flex items-center gap-4'>
-          <div className='text-nowrap'>Экскурсии ({listQuery.data?.count ?? 0})</div>
+        <div>
           {infoQuery.data.canCreate && (
             <Button
               type='button'
-              onPress={() => navigate({ to: '/excursions/new' })}
+              onPress={() => navigate({ to: './new' })}
               size='sm'
               intent='warning'
               className='flex items-center justify-center gap-1'
             >
               <HiPlus />
-              Добавить экскурсию
+              Создать заявку
             </Button>
           )}
+        </div>
+        <div className='flex items-center gap-4'>
+          <div className='text-xl font-medium text-nowrap'>Список заявок</div>
         </div>
         <div className='max-w-sm'>
           {infoQuery.data.canSearch && <TextField label='Поиск...' value={searchParams.search} onChange={setSearch} />}
