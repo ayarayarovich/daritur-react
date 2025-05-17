@@ -16,12 +16,13 @@ export const getBookingsInfo = async () => {
   return data
 }
 
-export const listBookings = async (payload: { limit: number; offset: number; search?: string }) => {
+export const listBookings = async (payload: { limit: number; offset: number; search?: string; filters?: string[] }) => {
   const response = await Axios.privateClient.get('/react-admin/booking/bookings', {
     params: {
       limit: payload.limit,
       offset: payload.offset,
       q: payload.search,
+      statuses: payload.filters ?? [],
     },
   })
   const scheme = z.object({

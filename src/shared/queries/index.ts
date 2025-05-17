@@ -120,7 +120,7 @@ const tours = createQueryKeys('tours', {
 })
 
 const booking = createQueryKeys('booking', {
-  list: (config: { offset: number; limit: number; search?: string }) => ({
+  list: (config: { offset: number; limit: number; search?: string; filters?: string[] }) => ({
     queryKey: [{ config }],
     queryFn: () => BookingService.listBookings(config),
   }),

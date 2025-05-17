@@ -1,5 +1,7 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { CheckboxGroup, Checkbox as RACCheckbox } from 'react-aria-components'
 import toast from 'react-hot-toast'
+import { HiX } from 'react-icons/hi'
 import { HiPencil, HiPlus, HiPrinter, HiTrash } from 'react-icons/hi2'
 
 import { DataTable } from '@/components/data-table'
@@ -71,12 +73,14 @@ function RouteComponent() {
 
   const debouncedSearch = useDebounce(searchParams.search, 500)
 
+  const [filters, setFilters] = useState<string[]>([])
   const infoQuery = useSuspenseQuery(Queries.booking.info)
   const listQuery = useQuery({
     ...Queries.booking.list({
       offset: searchParams.pageIndex * searchParams.pageSize,
       limit: searchParams.pageSize,
       search: debouncedSearch,
+      filters,
     }),
     placeholderData: (v) => v,
   })
@@ -231,6 +235,36 @@ function RouteComponent() {
         </div>
         <div className='flex items-center gap-4'>
           <div className='text-xl font-medium text-nowrap'>Список заявок</div>
+          <CheckboxGroup className='flex flex-wrap items-center gap-2' value={filters} onChange={setFilters}>
+            <RACCheckbox
+              value='created'
+              className='group data flex cursor-pointer items-center gap-1 rounded-md bg-[#E9D8FD] px-3 py-1 text-base font-medium text-[#44337A]/80 data-[selected=true]:bg-[#805AD5] data-[selected=true]:text-white'
+            >
+              <div>Созданы</div>
+              <HiX className='hidden text-white opacity-50 group-data-[selected=true]:block' />
+            </RACCheckbox>
+            <RACCheckbox
+              value='approved'
+              className='group data flex cursor-pointer items-center gap-1 rounded-md bg-[#E2E8F0] px-3 py-1 text-base font-medium text-[#1A202C]/80 data-[selected=true]:bg-[#718096] data-[selected=true]:text-white'
+            >
+              <div>Подтверждены</div>
+              <HiX className='hidden text-white opacity-50 group-data-[selected=true]:block' />
+            </RACCheckbox>
+            <RACCheckbox
+              value='declined'
+              className='group data flex cursor-pointer items-center gap-1 rounded-md bg-[#FEEBCB] px-3 py-1 text-base font-medium text-[#7B341E]/80 data-[selected=true]:bg-[#DD6B20] data-[selected=true]:text-white'
+            >
+              <div>Отменены</div>
+              <HiX className='hidden text-white opacity-50 group-data-[selected=true]:block' />
+            </RACCheckbox>
+            <RACCheckbox
+              value='paid'
+              className='group data flex cursor-pointer items-center gap-1 rounded-md bg-[#E9D8FD] px-3 py-1 text-base font-medium text-[#44337A]/80 data-[selected=true]:bg-[#805AD5] data-[selected=true]:text-white'
+            >
+              <div>Оплачены</div>
+              <HiX className='hidden text-white opacity-50 group-data-[selected=true]:block' />
+            </RACCheckbox>
+          </CheckboxGroup>
         </div>
         <div className='max-w-sm'>
           {infoQuery.data.canSearch && <TextField label='Поиск...' value={searchParams.search} onChange={setSearch} />}
