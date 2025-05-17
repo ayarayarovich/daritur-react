@@ -1,3 +1,4 @@
+import { Utils } from '@/lib'
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
@@ -199,12 +200,20 @@ export const deleteBooking = async (payload: { id: number }) => {
   return response.data
 }
 
+export const downloadOffer = async (payload: { id: number }) => {
+  const response = await Axios.privateClient.get('/react-admin/booking/bookings/' + payload.id + '/download-offer')
+  const scheme = z.string()
+  const url = scheme.parse(response.data)
+  Utils.downloadLink(url)
+  return url
+}
+
 export const deleteBookings = async (payload: { ids: number[] }) => {
-  await Promise.all(
-    payload.ids.map((id) => {
-      deleteBooking({ id })
-    }),
-  )
+  await Promise.all(payload.ids.map((id) => deleteBooking({ id })))
+}
+
+export const downloadOffers = async (payload: { ids: number[] }) => {
+  await Promise.all(payload.ids.map((id) => downloadOffer({ id })))
 }
 
 export const getBooking = async (payload: { id: number }) => {

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2'
+import { HiPencil, HiPlus, HiPrinter, HiTrash } from 'react-icons/hi2'
 
 import { DataTable } from '@/components/data-table'
 import Button from '@/components/ui/button'
@@ -194,6 +194,24 @@ function RouteComponent() {
     },
   })
 
+  const downloadOffersMutation = useMutation({
+    mutationFn: BookingService.downloadOffers,
+    onSuccess: async () => {
+      await Query.client.invalidateQueries({
+        queryKey: Queries.booking._def,
+      })
+      table.toggleAllRowsSelected(false)
+    },
+  })
+
+  const downloadOffers = (ids: number[]) => {
+    toast.promise(downloadOffersMutation.mutateAsync({ ids }), {
+      loading: 'Секунду...',
+      error: (err) => extractErrorMessageFromAPIError(err) || 'Что-то пошло не так',
+      success: 'Заявки выгружены',
+    })
+  }
+
   return (
     <div className='flex flex-col items-stretch gap-16 px-5 py-22'>
       <div className='flex flex-col items-stretch gap-3'>
@@ -217,7 +235,7 @@ function RouteComponent() {
         <div className='max-w-sm'>
           {infoQuery.data.canSearch && <TextField label='Поиск...' value={searchParams.search} onChange={setSearch} />}
         </div>
-        <div>
+        <div className='flex items-center gap-1'>
           {infoQuery.data.canDelete && (
             <Button
               type='button'
@@ -231,6 +249,17 @@ function RouteComponent() {
               Удалить
             </Button>
           )}
+          <Button
+            type='button'
+            onPress={() => downloadOffers(table.getSelectedRowModel().rows.map((v) => v.original.id))}
+            isDisabled={table.getSelectedRowModel().rows.length === 0 || downloadOffersMutation.isPending}
+            size='sm'
+            intent='ghost'
+            className='flex items-center justify-center gap-1'
+          >
+            <HiPrinter />
+            Напечатать договор
+          </Button>
         </div>
         <div className='w-min min-w-2xl'>
           <DataTable table={table} />

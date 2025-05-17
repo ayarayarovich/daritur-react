@@ -76,3 +76,19 @@ export function toTime(datetime: DateTime) {
   }
   return new Time(datetime.hour, datetime.minute, datetime.second)
 }
+
+export function downloadLink(url: string) {
+  const link = document.createElement('a')
+  link.style.display = 'none'
+  link.href = url
+  link.download = url.split('/').pop() || 'file'
+
+  document.body.appendChild(link)
+  link.click()
+
+  // To make this work on Firefox we need to wait
+  // a little while before removing it.
+  setTimeout(() => {
+    link.parentNode?.removeChild(link)
+  }, 0)
+}
