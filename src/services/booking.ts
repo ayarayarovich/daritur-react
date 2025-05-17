@@ -1,5 +1,6 @@
 import { Utils } from '@/lib'
 import { DateTime } from 'luxon'
+import qs from 'qs'
 import { z } from 'zod'
 
 import { Axios } from '@/shared'
@@ -24,6 +25,7 @@ export const listBookings = async (payload: { limit: number; offset: number; sea
       q: payload.search,
       statuses: payload.filters ?? [],
     },
+    paramsSerializer: (v) => qs.stringify(v, { arrayFormat: 'repeat' }),
   })
   const scheme = z.object({
     count: z.number(),
