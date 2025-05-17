@@ -1,5 +1,5 @@
 import { FileTrigger, Pressable } from 'react-aria-components'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { HiOutlineOfficeBuilding, HiOutlinePhotograph, HiOutlineUpload, HiX } from 'react-icons/hi'
 import { HiArrowLeft } from 'react-icons/hi2'
@@ -12,6 +12,7 @@ import TextArea from '@/components/ui/text-area'
 import TextField from '@/components/ui/text-field'
 import TimeField from '@/components/ui/time-field'
 import { FoodTypes, PlaceTypes } from '@/constants'
+import { Utils } from '@/lib'
 import { extractErrorMessageFromAPIError, imgScheme, requiredFieldRefine } from '@/lib/utils'
 import { HotelsService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -55,6 +56,8 @@ const formScheme = z.object({
       category: z.string().refine(...requiredFieldRefine()),
       price: z.number().refine(...requiredFieldRefine()),
       count: z.number().refine(...requiredFieldRefine()),
+      _images: z.object({ id: z.number(), img: imgScheme, previewUrl: z.string() }).array(),
+      _deletedImages: z.number().array(),
     })
     .array(),
   _images: z.object({ id: z.number(), img: imgScheme, previewUrl: z.string() }).array(),
@@ -90,6 +93,12 @@ function RouteComponent() {
           category: v.category,
           price: v.price,
           count: v.count,
+          _images: v.images.map((v) => ({
+            id: v.id,
+            img: v.url,
+            previewUrl: v.url,
+          })),
+          _deletedImages: [],
         })),
         foodTypes: data.foodTypes,
         _images: data.images.map((v) => ({
@@ -105,6 +114,7 @@ function RouteComponent() {
   const roomTypesFieldArray = useFieldArray({
     control: form.control,
     name: 'roomTypes',
+    keyName: 'fieldKey',
   })
 
   const imagesFieldArray = useFieldArray({
@@ -117,7 +127,11 @@ function RouteComponent() {
     const action = async () => {
       const deletedImages = vals._deletedImages
       const images = vals._images
-      const values = omit(vals, ['_images', '_deletedImages'])
+      const roomTypes = vals.roomTypes
+      const values = {
+        ...omit(vals, ['_images', '_deletedImages']),
+        roomTypes: vals.roomTypes.map((v) => omit(v, ['_images', '_deletedImages'])),
+      }
 
       const hotel = await HotelsService.updateHotel({
         ...values,
@@ -129,6 +143,21 @@ function RouteComponent() {
         images.map((v) => (v.img instanceof File ? HotelsService.addHotelImage({ hotel_id: hotel.id, file: v.img }) : Promise.resolve())),
       )
       await Promise.all(deletedImages.map((v) => HotelsService.deleteHotelImage({ hotel_id: hotel.id, image_id: v })))
+
+      await Promise.all(
+        roomTypes.map(async (v, idx) => {
+          await Promise.all(
+            v._images.map(async (v) =>
+              v.img instanceof File
+                ? HotelsService.addRoomTypeImage({ room_type_id: hotel.roomTypes[idx].id, file: v.img })
+                : Promise.resolve(),
+            ),
+          )
+          await Promise.all(
+            v._deletedImages.map((v) => HotelsService.deleteRoomTypeImage({ room_type_id: hotel.roomTypes[idx].id, image_id: v })),
+          )
+        }),
+      )
     }
     await toast.promise(action(), {
       loading: 'Секунду...',
@@ -236,112 +265,7 @@ function RouteComponent() {
         <p className='mb-2 font-medium'>Номера</p>
         <div className='mb-4 flex flex-col items-stretch gap-2'>
           {roomTypesFieldArray.fields.map((field, index) => (
-            <div className='rounded-md bg-teal-50 p-2 pb-4' key={field.id}>
-              <div className='mb-2 flex justify-end'>
-                <Button
-                  type='button'
-                  size='xs'
-                  intent='ghost'
-                  onPress={() => roomTypesFieldArray.remove(index)}
-                  className='flex items-center justify-center gap-1'
-                >
-                  <HiX />
-                </Button>
-              </div>
-              <div className='flex items-start gap-2'>
-                <div className='shrink-0 grow-0 rounded-md bg-white px-2 py-1 font-bold'>{index + 1}</div>
-                <div className='grid grow grid-cols-[max-content_2fr_1fr_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-sm'>
-                  <p>Вид размещения</p>
-                  <div className='col-span-3'>
-                    <Controller
-                      control={form.control}
-                      name={`roomTypes.${index}.placeType`}
-                      render={({ field, fieldState }) => (
-                        <Select
-                          size='sm'
-                          label='Вид размещения'
-                          intent='primary'
-                          items={Object.keys(PlaceTypes).map((v) => ({ id: v, name: PlaceTypes[v] }))}
-                          onSelectionChange={(v) => field.onChange(v)}
-                          selectedKey={field.value?.toString()}
-                          errorMessage={fieldState.error?.message}
-                          isInvalid={fieldState.invalid}
-                          isDisabled={!availableCities.data?.length || field.disabled}
-                          {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
-                        >
-                          {(item) => <Item key={item.id}>{item.name}</Item>}
-                        </Select>
-                      )}
-                    />
-                  </div>
-                  <p>Дополнительно</p>
-                  <Controller
-                    control={form.control}
-                    name={`roomTypes.${index}.comment`}
-                    render={({ field, fieldState }) => (
-                      <TextField
-                        size='sm'
-                        label='Дополнительно'
-                        intent='primary'
-                        {...field}
-                        errorMessage={fieldState.error?.message}
-                        isInvalid={fieldState.invalid}
-                      />
-                    )}
-                  />
-                  <div className='col-span-2 flex items-center gap-4'>
-                    <p className='text-nowrap'>Цена/сут</p>
-                    <Controller
-                      control={form.control}
-                      name={`roomTypes.${index}.price`}
-                      render={({ field, fieldState }) => (
-                        <NumberField
-                          size='sm'
-                          label='Цена/сут'
-                          formatOptions={{ style: 'currency', currency: 'RUB' }}
-                          intent='primary'
-                          {...field}
-                          errorMessage={fieldState.error?.message}
-                          isInvalid={fieldState.invalid}
-                        />
-                      )}
-                    />
-                  </div>
-                  <p>Кат. номера</p>
-                  <Controller
-                    control={form.control}
-                    name={`roomTypes.${index}.category`}
-                    render={({ field, fieldState }) => (
-                      <TextField
-                        size='sm'
-                        label='Кат. номера'
-                        intent='primary'
-                        {...field}
-                        errorMessage={fieldState.error?.message}
-                        isInvalid={fieldState.invalid}
-                      />
-                    )}
-                  />
-                  <div className='col-span-2 flex items-center gap-4'>
-                    <p className='text-nowrap'>Кол-во номеров</p>
-                    <Controller
-                      control={form.control}
-                      name={`roomTypes.${index}.count`}
-                      render={({ field, fieldState }) => (
-                        <NumberField
-                          size='sm'
-                          label='Кол-во'
-                          intent='primary'
-                          {...field}
-                          errorMessage={fieldState.error?.message}
-                          isInvalid={fieldState.invalid}
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <RoomItem fieldIdx={index} remove={(idx) => roomTypesFieldArray.remove(idx)} key={field.fieldKey} />
           ))}
           <Button
             className='flex w-max items-center gap-1 text-sm opacity-75'
@@ -501,5 +425,150 @@ function RouteComponent() {
         </Button>
       </div>
     </form>
+  )
+}
+
+function RoomItem({ fieldIdx, remove }: { fieldIdx: number; remove: (index?: number | number[]) => void }) {
+  const form = useFormContext<z.infer<typeof formScheme>>()
+  const availableCities = useQuery(Queries.excursions.cities)
+  const imagesFieldArray = useFieldArray({
+    control: form.control,
+    name: `roomTypes.${fieldIdx}._images`,
+    keyName: 'key',
+  })
+  return (
+    <div className='rounded-md bg-teal-50 p-2 pb-4'>
+      <div className='mb-2 flex justify-end'>
+        <Button type='button' size='xs' intent='ghost' onPress={() => remove(fieldIdx)} className='flex items-center justify-center gap-1'>
+          <HiX />
+        </Button>
+      </div>
+      <div className='flex items-start gap-2'>
+        <div className='shrink-0 grow-0 rounded-md bg-white px-2 py-1 font-bold'>{fieldIdx + 1}</div>
+        <div className='grid grow grid-cols-[max-content_2fr_1fr_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-sm'>
+          <p>Вид размещения</p>
+          <div className='col-span-3'>
+            <Controller
+              control={form.control}
+              name={`roomTypes.${fieldIdx}.placeType`}
+              render={({ field, fieldState }) => (
+                <Select
+                  size='sm'
+                  label='Вид размещения'
+                  intent='primary'
+                  items={Object.keys(PlaceTypes).map((v) => ({ id: v, name: PlaceTypes[v] }))}
+                  onSelectionChange={(v) => field.onChange(v)}
+                  selectedKey={field.value?.toString()}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                  isDisabled={!availableCities.data?.length || field.disabled}
+                  {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
+                >
+                  {(item) => <Item key={item.id}>{item.name}</Item>}
+                </Select>
+              )}
+            />
+          </div>
+          <p>Дополнительно</p>
+          <Controller
+            control={form.control}
+            name={`roomTypes.${fieldIdx}.comment`}
+            render={({ field, fieldState }) => (
+              <TextField
+                size='sm'
+                label='Дополнительно'
+                intent='primary'
+                {...field}
+                errorMessage={fieldState.error?.message}
+                isInvalid={fieldState.invalid}
+              />
+            )}
+          />
+          <div className='col-span-2 flex items-center gap-4'>
+            <p className='text-nowrap'>Цена/сут</p>
+            <Controller
+              control={form.control}
+              name={`roomTypes.${fieldIdx}.price`}
+              render={({ field, fieldState }) => (
+                <NumberField
+                  size='sm'
+                  label='Цена/сут'
+                  formatOptions={{ style: 'currency', currency: 'RUB' }}
+                  intent='primary'
+                  {...field}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                />
+              )}
+            />
+          </div>
+          <p>Кат. номера</p>
+          <Controller
+            control={form.control}
+            name={`roomTypes.${fieldIdx}.category`}
+            render={({ field, fieldState }) => (
+              <TextField
+                size='sm'
+                label='Кат. номера'
+                intent='primary'
+                {...field}
+                errorMessage={fieldState.error?.message}
+                isInvalid={fieldState.invalid}
+              />
+            )}
+          />
+          <div className='col-span-2 flex items-center gap-4'>
+            <p className='text-nowrap'>Кол-во номеров</p>
+            <Controller
+              control={form.control}
+              name={`roomTypes.${fieldIdx}.count`}
+              render={({ field, fieldState }) => (
+                <NumberField
+                  size='sm'
+                  label='Кол-во'
+                  intent='primary'
+                  {...field}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                />
+              )}
+            />
+          </div>
+
+          <div className='col-span-full flex flex-wrap items-center gap-2'>
+            <FileTrigger
+              onSelect={(e) => {
+                if (!e) return
+                const files = Array.from(e)
+                for (const file of files) {
+                  const previewUrl = URL.createObjectURL(file)
+                  imagesFieldArray.append({ id: 0, img: file, previewUrl })
+                }
+              }}
+            >
+              <Pressable>
+                <button className='flex w-fit items-center gap-1 text-sm opacity-75 not-disabled:cursor-pointer' type='button'>
+                  <HiOutlinePhotograph />
+                  Добавить фотографию
+                </button>
+              </Pressable>
+            </FileTrigger>
+            {imagesFieldArray.fields.map((field, index) => (
+              <button
+                className='text-blue-1 text-sm underline not-disabled:cursor-pointer'
+                type='button'
+                onClick={() => {
+                  URL.revokeObjectURL(field.previewUrl)
+                  imagesFieldArray.remove(index)
+                  form.setValue('_deletedImages', [...form.getValues(`roomTypes.${fieldIdx}._deletedImages`), field.id])
+                }}
+              >
+                {Utils.extractFileName(field.img)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

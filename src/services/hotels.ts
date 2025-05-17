@@ -146,6 +146,22 @@ export const updateHotel = async (payload: {
   })
   const schema = z.object({
     id: z.number(),
+    roomTypes: z
+      .object({
+        id: z.number(),
+        placeType: z.string(),
+        comment: z.string(),
+        price: z.number(),
+        count: z.number(),
+        category: z.string(),
+        images: z
+          .object({
+            id: z.number(),
+            url: z.string(),
+          })
+          .array(),
+      })
+      .array(),
   })
   return schema.parse(response.data)
 }
