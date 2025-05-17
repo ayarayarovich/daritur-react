@@ -100,6 +100,22 @@ export const createHotel = async (payload: {
   })
   const schema = z.object({
     id: z.number(),
+    roomTypes: z
+      .object({
+        id: z.number(),
+        placeType: z.string(),
+        comment: z.string(),
+        price: z.number(),
+        count: z.number(),
+        category: z.string(),
+        images: z
+          .object({
+            id: z.number(),
+            url: z.string(),
+          })
+          .array(),
+      })
+      .array(),
   })
   return schema.parse(response.data)
 }
@@ -147,6 +163,22 @@ export const addHotelImage = async (payload: { hotel_id: number; file: File }) =
 
 export const deleteHotelImage = async (payload: { hotel_id: number; image_id: number }) => {
   const response = await Axios.privateClient.delete(`/react-admin/hotels/${payload.hotel_id}/images/${payload.image_id}`)
+  return response.data
+}
+
+export const addRoomTypeImage = async (payload: { room_type_id: number; file: File }) => {
+  const response = await Axios.privateClient.postForm(`/react-admin/hotels/room-types/${payload.room_type_id}/images`, {
+    file: payload.file,
+  })
+  const schema = z.object({
+    id: z.number(),
+    url: z.string(),
+  })
+  return schema.parse(response.data)
+}
+
+export const deleteRoomTypeImage = async (payload: { room_type_id: number; image_id: number }) => {
+  const response = await Axios.privateClient.delete(`/react-admin/hotels/room-types/${payload.room_type_id}/images/${payload.image_id}`)
   return response.data
 }
 

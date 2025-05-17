@@ -95,3 +95,10 @@ export function downloadFile(file: File) {
     link.parentNode?.removeChild(link)
   }, 0)
 }
+
+export function extractFileName(fileOrUrl: string | File) {
+  if (fileOrUrl instanceof File) {
+    return fileOrUrl.name
+  }
+  return fileOrUrl.split('/').pop()?.trim() || 'Файл'
+}
