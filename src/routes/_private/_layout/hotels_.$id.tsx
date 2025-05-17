@@ -562,7 +562,10 @@ function RoomItem({ fieldIdx, remove }: { fieldIdx: number; remove: (index?: num
                 onClick={() => {
                   URL.revokeObjectURL(field.previewUrl)
                   imagesFieldArray.remove(index)
-                  form.setValue('_deletedImages', [...form.getValues(`roomTypes.${fieldIdx}._deletedImages`), field.id])
+                  form.setValue(`roomTypes.${fieldIdx}._deletedImages`, [
+                    ...form.getValues(`roomTypes.${fieldIdx}._deletedImages`),
+                    field.id,
+                  ])
                 }}
               >
                 {Utils.extractFileName(field.img)}
