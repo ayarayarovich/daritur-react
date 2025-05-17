@@ -1,5 +1,5 @@
 import { FileTrigger, Pressable } from 'react-aria-components'
-import { Controller, useFieldArray, useForm, useFormContext } from 'react-hook-form'
+import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { HiOutlineOfficeBuilding, HiOutlinePhotograph, HiOutlineUpload, HiX } from 'react-icons/hi'
 import { HiArrowLeft } from 'react-icons/hi2'
@@ -171,260 +171,262 @@ function RouteComponent() {
   })
 
   return (
-    <form onSubmit={onSubmit} className='flex flex-col items-stretch gap-4 px-5 py-22'>
-      <div className='flex'>
-        <Button
-          type='button'
-          onPress={() => navigate({ to: '..' })}
-          size='sm'
-          intent='ghost'
-          className='flex items-center justify-center gap-1'
-        >
-          <HiArrowLeft />
-          Вернуться
-        </Button>
-      </div>
-      <h1 className='mb-4 text-xl font-medium'>Добавление новой гостиницы</h1>
-      <div className='w-min min-w-2xl'>
-        <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2'>
-          <p className='font-medium'>Название</p>
-          <Controller
-            control={form.control}
-            name='name'
-            render={({ field, fieldState }) => (
-              <TextField
-                size='sm'
-                label='Название'
-                intent='primary'
-                {...field}
-                errorMessage={fieldState.error?.message}
-                isInvalid={fieldState.invalid}
-              />
-            )}
-          />
-          <p className='font-medium'>Страна</p>
-          <Controller
-            control={form.control}
-            name='countryId'
-            render={({ field, fieldState }) => (
-              <Select
-                size='sm'
-                label='Страна'
-                intent='primary'
-                items={availableCountries.data || []}
-                onSelectionChange={(v) => field.onChange(Number(v))}
-                selectedKey={field.value?.toString()}
-                errorMessage={fieldState.error?.message}
-                isInvalid={fieldState.invalid}
-                isDisabled={!availableCountries.data?.length || field.disabled}
-                {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
-              >
-                {(item) => <Item key={item.id}>{item.name}</Item>}
-              </Select>
-            )}
-          />
-          <p className='font-medium'>Регион</p>
-          <Controller
-            control={form.control}
-            name='cityId'
-            render={({ field, fieldState }) => (
-              <Select
-                size='sm'
-                label='Регион'
-                intent='primary'
-                items={availableCities.data || []}
-                onSelectionChange={(v) => field.onChange(Number(v))}
-                selectedKey={field.value?.toString()}
-                errorMessage={fieldState.error?.message}
-                isInvalid={fieldState.invalid}
-                isDisabled={!availableCities.data?.length || field.disabled}
-                {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
-              >
-                {(item) => <Item key={item.id}>{item.name}</Item>}
-              </Select>
-            )}
-          />
-          <p className='font-medium'>Адрес</p>
-          <Controller
-            control={form.control}
-            name='address'
-            render={({ field, fieldState }) => (
-              <TextField
-                size='sm'
-                label='Адрес'
-                intent='primary'
-                {...field}
-                errorMessage={fieldState.error?.message}
-                isInvalid={fieldState.invalid}
-              />
-            )}
-          />
-        </div>
-      </div>
-      <div className='w-min min-w-2xl'>
-        <p className='mb-2 font-medium'>Номера</p>
-        <div className='mb-4 flex flex-col items-stretch gap-2'>
-          {roomTypesFieldArray.fields.map((field, index) => (
-            <RoomItem fieldIdx={index} remove={(idx) => roomTypesFieldArray.remove(idx)} key={field.fieldKey} />
-          ))}
+    <FormProvider {...form}>
+      <form onSubmit={onSubmit} className='flex flex-col items-stretch gap-4 px-5 py-22'>
+        <div className='flex'>
           <Button
-            className='flex w-max items-center gap-1 text-sm opacity-75'
-            intent='ghost'
+            type='button'
+            onPress={() => navigate({ to: '..' })}
             size='sm'
-            onPress={() => roomTypesFieldArray.append({} as never)}
+            intent='ghost'
+            className='flex items-center justify-center gap-1'
           >
-            <HiOutlineOfficeBuilding />
-            Добавить номер
+            <HiArrowLeft />
+            Вернуться
           </Button>
         </div>
-        <p className='mb-2 font-medium'>Описание</p>
-        <div className='mb-4'>
-          <Controller
-            control={form.control}
-            name='description'
-            render={({ field, fieldState }) => (
-              <TextArea
-                size='sm'
-                label='Описание'
-                intent='primary'
-                {...field}
-                errorMessage={fieldState.error?.message}
-                isInvalid={fieldState.invalid}
-              />
-            )}
-          />
-        </div>
-        <div className='mb-4 flex items-center gap-2'>
-          <div className='flex items-center gap-2'>
-            <p className='font-medium'>Заезд ({DateTime.local().offsetNameShort})</p>
+        <h1 className='mb-4 text-xl font-medium'>Добавление новой гостиницы</h1>
+        <div className='w-min min-w-2xl'>
+          <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2'>
+            <p className='font-medium'>Название</p>
             <Controller
               control={form.control}
-              name='checkinAt'
+              name='name'
               render={({ field, fieldState }) => (
-                <TimeField
+                <TextField
                   size='sm'
-                  label='Описание'
+                  label='Название'
                   intent='primary'
                   {...field}
-                  value={(field.value ?? null) as never}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                />
+              )}
+            />
+            <p className='font-medium'>Страна</p>
+            <Controller
+              control={form.control}
+              name='countryId'
+              render={({ field, fieldState }) => (
+                <Select
+                  size='sm'
+                  label='Страна'
+                  intent='primary'
+                  items={availableCountries.data || []}
+                  onSelectionChange={(v) => field.onChange(Number(v))}
+                  selectedKey={field.value?.toString()}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                  isDisabled={!availableCountries.data?.length || field.disabled}
+                  {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
+                >
+                  {(item) => <Item key={item.id}>{item.name}</Item>}
+                </Select>
+              )}
+            />
+            <p className='font-medium'>Регион</p>
+            <Controller
+              control={form.control}
+              name='cityId'
+              render={({ field, fieldState }) => (
+                <Select
+                  size='sm'
+                  label='Регион'
+                  intent='primary'
+                  items={availableCities.data || []}
+                  onSelectionChange={(v) => field.onChange(Number(v))}
+                  selectedKey={field.value?.toString()}
+                  errorMessage={fieldState.error?.message}
+                  isInvalid={fieldState.invalid}
+                  isDisabled={!availableCities.data?.length || field.disabled}
+                  {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
+                >
+                  {(item) => <Item key={item.id}>{item.name}</Item>}
+                </Select>
+              )}
+            />
+            <p className='font-medium'>Адрес</p>
+            <Controller
+              control={form.control}
+              name='address'
+              render={({ field, fieldState }) => (
+                <TextField
+                  size='sm'
+                  label='Адрес'
+                  intent='primary'
+                  {...field}
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />
               )}
             />
           </div>
-          <div className='flex items-center gap-2'>
-            <p className='font-medium'>Выезд ({DateTime.local().offsetNameShort})</p>
+        </div>
+        <div className='w-min min-w-2xl'>
+          <p className='mb-2 font-medium'>Номера</p>
+          <div className='mb-4 flex flex-col items-stretch gap-2'>
+            {roomTypesFieldArray.fields.map((field, index) => (
+              <RoomItem fieldIdx={index} remove={(idx) => roomTypesFieldArray.remove(idx)} key={field.fieldKey} />
+            ))}
+            <Button
+              className='flex w-max items-center gap-1 text-sm opacity-75'
+              intent='ghost'
+              size='sm'
+              onPress={() => roomTypesFieldArray.append({} as never)}
+            >
+              <HiOutlineOfficeBuilding />
+              Добавить номер
+            </Button>
+          </div>
+          <p className='mb-2 font-medium'>Описание</p>
+          <div className='mb-4'>
             <Controller
               control={form.control}
-              name='checkoutAt'
+              name='description'
               render={({ field, fieldState }) => (
-                <TimeField
+                <TextArea
                   size='sm'
                   label='Описание'
                   intent='primary'
                   {...field}
-                  value={(field.value ?? null) as never}
                   errorMessage={fieldState.error?.message}
                   isInvalid={fieldState.invalid}
                 />
               )}
             />
           </div>
-        </div>
-
-        <p className='mb-2 font-medium'>Питание</p>
-        <div className='mb-4 flex items-center gap-2'>
-          <Controller
-            control={form.control}
-            name='foodTypes'
-            render={({ field, fieldState }) => (
-              <div>
-                <div className='w-fit'>
-                  <Select
+          <div className='mb-4 flex items-center gap-2'>
+            <div className='flex items-center gap-2'>
+              <p className='font-medium'>Заезд ({DateTime.local().offsetNameShort})</p>
+              <Controller
+                control={form.control}
+                name='checkinAt'
+                render={({ field, fieldState }) => (
+                  <TimeField
                     size='sm'
-                    label='Тип питания'
+                    label='Описание'
                     intent='primary'
-                    onSelectionChange={(v) => {
-                      field.onChange(unique(field.value.concat([v.toString()])))
-                    }}
-                    items={Object.keys(FoodTypes).map((id) => ({ id, name: FoodTypes[id] }))}
+                    {...field}
+                    value={(field.value ?? null) as never}
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
-                    isDisabled={field.disabled}
-                    {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
-                  >
-                    {(v) => <Item key={v.id}>{v.name}</Item>}
-                  </Select>
-                </div>
-                <div className='mt-2 flex flex-wrap items-center gap-2'>
-                  {field.value?.map((v) => (
-                    <Button
-                      key={v}
-                      type='button'
-                      onPress={() => field.onChange(field.value.filter((t) => t !== v))}
-                      intent='primary'
-                      size='sm'
-                      className='flex items-center gap-1'
-                    >
-                      {FoodTypes[v]}
-                      <HiX />
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-          />
-        </div>
-        <div className='mb-2 flex items-center gap-2'>
-          <p className='font-medium'>Фотографии</p>
-          <FileTrigger
-            onSelect={(e) => {
-              if (!e) return
-              const files = Array.from(e)
-              for (const file of files) {
-                const previewUrl = URL.createObjectURL(file)
-                imagesFieldArray.append({ img: file, previewUrl, id: 0 })
-              }
-            }}
-          >
-            <Pressable>
-              <button className='flex w-fit items-center gap-1 text-sm opacity-75 not-disabled:cursor-pointer' type='button'>
-                <HiOutlinePhotograph />
-                Добавить фотографию
-              </button>
-            </Pressable>
-          </FileTrigger>
-        </div>
-        <div className='mb-4 flex flex-wrap items-center gap-2'>
-          {imagesFieldArray.fields.map((field, index) => (
-            <div className='relative' key={field.fieldKey}>
-              <div className='absolute top-2 right-2'>
-                <Button
-                  type='button'
-                  size='xs'
-                  intent='secondary'
-                  onPress={() => {
-                    URL.revokeObjectURL(field.previewUrl)
-                    imagesFieldArray.remove(index)
-                    form.setValue('_deletedImages', [...form.getValues('_deletedImages'), field.id])
-                  }}
-                >
-                  <HiX className='text-red-500' />
-                </Button>
-              </div>
-              <img className='h-48' src={field.previewUrl} />
+                  />
+                )}
+              />
             </div>
-          ))}
+            <div className='flex items-center gap-2'>
+              <p className='font-medium'>Выезд ({DateTime.local().offsetNameShort})</p>
+              <Controller
+                control={form.control}
+                name='checkoutAt'
+                render={({ field, fieldState }) => (
+                  <TimeField
+                    size='sm'
+                    label='Описание'
+                    intent='primary'
+                    {...field}
+                    value={(field.value ?? null) as never}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={fieldState.invalid}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <p className='mb-2 font-medium'>Питание</p>
+          <div className='mb-4 flex items-center gap-2'>
+            <Controller
+              control={form.control}
+              name='foodTypes'
+              render={({ field, fieldState }) => (
+                <div>
+                  <div className='w-fit'>
+                    <Select
+                      size='sm'
+                      label='Тип питания'
+                      intent='primary'
+                      onSelectionChange={(v) => {
+                        field.onChange(unique(field.value.concat([v.toString()])))
+                      }}
+                      items={Object.keys(FoodTypes).map((id) => ({ id, name: FoodTypes[id] }))}
+                      errorMessage={fieldState.error?.message}
+                      isInvalid={fieldState.invalid}
+                      isDisabled={field.disabled}
+                      {...omit(field, ['disabled', 'onChange', 'value', 'ref'])}
+                    >
+                      {(v) => <Item key={v.id}>{v.name}</Item>}
+                    </Select>
+                  </div>
+                  <div className='mt-2 flex flex-wrap items-center gap-2'>
+                    {field.value?.map((v) => (
+                      <Button
+                        key={v}
+                        type='button'
+                        onPress={() => field.onChange(field.value.filter((t) => t !== v))}
+                        intent='primary'
+                        size='sm'
+                        className='flex items-center gap-1'
+                      >
+                        {FoodTypes[v]}
+                        <HiX />
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            />
+          </div>
+          <div className='mb-2 flex items-center gap-2'>
+            <p className='font-medium'>Фотографии</p>
+            <FileTrigger
+              onSelect={(e) => {
+                if (!e) return
+                const files = Array.from(e)
+                for (const file of files) {
+                  const previewUrl = URL.createObjectURL(file)
+                  imagesFieldArray.append({ img: file, previewUrl, id: 0 })
+                }
+              }}
+            >
+              <Pressable>
+                <button className='flex w-fit items-center gap-1 text-sm opacity-75 not-disabled:cursor-pointer' type='button'>
+                  <HiOutlinePhotograph />
+                  Добавить фотографию
+                </button>
+              </Pressable>
+            </FileTrigger>
+          </div>
+          <div className='mb-4 flex flex-wrap items-center gap-2'>
+            {imagesFieldArray.fields.map((field, index) => (
+              <div className='relative' key={field.fieldKey}>
+                <div className='absolute top-2 right-2'>
+                  <Button
+                    type='button'
+                    size='xs'
+                    intent='secondary'
+                    onPress={() => {
+                      URL.revokeObjectURL(field.previewUrl)
+                      imagesFieldArray.remove(index)
+                      form.setValue('_deletedImages', [...form.getValues('_deletedImages'), field.id])
+                    }}
+                  >
+                    <HiX className='text-red-500' />
+                  </Button>
+                </div>
+                <img className='h-48' src={field.previewUrl} />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      <div>
-        <Button type='submit' size='md' className='flex items-center gap-2'>
-          <HiOutlineUpload />
-          Сохранить
-        </Button>
-      </div>
-    </form>
+        <div>
+          <Button type='submit' size='md' className='flex items-center gap-2'>
+            <HiOutlineUpload />
+            Сохранить
+          </Button>
+        </div>
+      </form>
+    </FormProvider>
   )
 }
 
