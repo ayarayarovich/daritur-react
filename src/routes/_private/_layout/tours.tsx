@@ -258,12 +258,12 @@ function RouteComponent() {
         </div>
       </div>
 
-      <ToursCalendar />
+      <ToursCalendar filters={filters} />
     </div>
   )
 }
 
-function ToursCalendar() {
+function ToursCalendar(props: { filters: string[] }) {
   const { locale } = useLocale()
   const [visibleDuration, setVisibleDuration] = useState<'month' | 'week'>('month')
   const state = useCalendarState({
@@ -279,6 +279,7 @@ function ToursCalendar() {
     Queries.tours.calendar({
       date_gte: DateTime.fromJSDate(state.visibleRange.start.toDate(state.timeZone)),
       date_lte: DateTime.fromJSDate(state.visibleRange.end.toDate(state.timeZone)),
+      filters: props.filters,
     }),
   )
 

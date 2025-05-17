@@ -101,7 +101,7 @@ const tours = createQueryKeys('tours', {
     queryKey: [{ config }],
     queryFn: ({ signal }) => ToursService.getToursList(config, signal),
   }),
-  calendar: (config: { date_gte: DateTime; date_lte: DateTime; search?: string }) => ({
+  calendar: (config: { date_gte: DateTime; date_lte: DateTime; search?: string; filters?: string[] }) => ({
     queryKey: [{ config }],
     queryFn: () => ToursService.getToursCalendar(config),
   }),
