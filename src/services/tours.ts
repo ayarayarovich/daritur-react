@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { objectify } from 'radashi'
 import { z } from 'zod'
 
 import { Axios } from '@/shared'
@@ -20,9 +21,7 @@ export const getToursList = async (
     search?: string
     offset: number
     limit: number
-    is_new?: boolean
-    is_draft?: boolean
-    is_archive?: boolean
+    filters?: string[]
   },
   signal?: AbortSignal,
 ) => {
@@ -31,6 +30,11 @@ export const getToursList = async (
       offset: payload.offset,
       limit: payload.limit,
       q: payload.search,
+      ...objectify(
+        payload.filters ?? [],
+        (v) => v,
+        () => true,
+      ),
     },
     signal,
   })

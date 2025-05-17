@@ -97,7 +97,7 @@ const hotels = createQueryKeys('hotels', {
 })
 
 const tours = createQueryKeys('tours', {
-  list: (config: { offset: number; limit: number; search?: string }) => ({
+  list: (config: { offset: number; limit: number; search?: string; filters?: string[] }) => ({
     queryKey: [{ config }],
     queryFn: ({ signal }) => ToursService.getToursList(config, signal),
   }),

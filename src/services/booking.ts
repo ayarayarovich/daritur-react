@@ -202,10 +202,10 @@ export const deleteBooking = async (payload: { id: number }) => {
 
 export const downloadOffer = async (payload: { id: number }) => {
   const response = await Axios.privateClient.get('/react-admin/booking/bookings/' + payload.id + '/download-offer')
-  const scheme = z.string()
-  const url = scheme.parse(response.data)
-  Utils.downloadLink(url)
-  return url
+  const scheme = z.instanceof(File)
+  const file = scheme.parse(response.data)
+  Utils.downloadFile(file)
+  return file
 }
 
 export const deleteBookings = async (payload: { ids: number[] }) => {

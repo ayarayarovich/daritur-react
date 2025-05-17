@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useCalendar, useLocale } from 'react-aria'
-import { Button as AriaButton } from 'react-aria-components'
+import { Button as AriaButton, CheckboxGroup, Checkbox as RACCheckbox } from 'react-aria-components'
 import toast from 'react-hot-toast'
 import { BiChevronLeft, BiChevronRight } from 'react-icons/bi'
+import { HiX } from 'react-icons/hi'
 import { HiPencil, HiPlus, HiTrash } from 'react-icons/hi2'
 import { useCalendarState } from 'react-stately'
 
@@ -77,12 +78,14 @@ function RouteComponent() {
 
   const debouncedSearch = useDebounce(searchParams.search, 500)
 
+  const [filters, setFilters] = useState<string[]>([])
   const infoQuery = useSuspenseQuery(Queries.tours.info)
   const listQuery = useQuery({
     ...Queries.tours.list({
       offset: searchParams.pageIndex * searchParams.pageSize,
       limit: searchParams.pageSize,
       search: debouncedSearch,
+      filters,
     }),
     placeholderData: (v) => v,
   })
@@ -208,6 +211,29 @@ function RouteComponent() {
         </div>
         <div className='flex items-center gap-4'>
           <div className='text-xl font-medium text-nowrap'>Список туров</div>
+          <CheckboxGroup className='flex flex-wrap items-center gap-2' value={filters} onChange={setFilters}>
+            <RACCheckbox
+              value='is_new'
+              className='group data flex cursor-pointer items-center gap-1 rounded-md bg-[#E9D8FD] px-3 py-1 text-base font-medium text-[#44337A]/80 data-[selected=true]:bg-[#805AD5] data-[selected=true]:text-white'
+            >
+              <div>Новые</div>
+              <HiX className='hidden text-white opacity-50 group-data-[selected=true]:block' />
+            </RACCheckbox>
+            <RACCheckbox
+              value='is_draft'
+              className='group data flex cursor-pointer items-center gap-1 rounded-md bg-[#E2E8F0] px-3 py-1 text-base font-medium text-[#1A202C]/80 data-[selected=true]:bg-[#718096] data-[selected=true]:text-white'
+            >
+              <div>Черновики</div>
+              <HiX className='hidden text-white opacity-50 group-data-[selected=true]:block' />
+            </RACCheckbox>
+            <RACCheckbox
+              value='is_archive'
+              className='group data flex cursor-pointer items-center gap-1 rounded-md bg-[#FEEBCB] px-3 py-1 text-base font-medium text-[#7B341E]/80 data-[selected=true]:bg-[#DD6B20] data-[selected=true]:text-white'
+            >
+              <div>Архив</div>
+              <HiX className='hidden text-white opacity-50 group-data-[selected=true]:block' />
+            </RACCheckbox>
+          </CheckboxGroup>
         </div>
         <div className='max-w-sm'>
           {infoQuery.data.canSearch && <TextField label='Поиск...' value={searchParams.search} onChange={setSearch} />}
