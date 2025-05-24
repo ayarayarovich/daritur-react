@@ -38,8 +38,8 @@ interface Props {
   }[]
 
   disabled?: boolean
-  onChange?: (customers: { customerId: number; customerName: string; seatNumber: number }[]) => void
-  value?: { customerId: number; customerName: string; seatNumber: number }[]
+  onChange?: (customers: { customerId: number; customerName: string; seatNumber: number | null }[]) => void
+  value?: { customerId: number; customerName: string; seatNumber: number | null }[]
 }
 
 export default function BusSeatSelector({ floors, value = [], onChange, disabled }: Props) {
@@ -79,7 +79,7 @@ export default function BusSeatSelector({ floors, value = [], onChange, disabled
                 const _val = cloneDeep(value)
                 for (const t of _val) {
                   if (v.placeType === 'seat' && t.customerId === currentCustomerID) {
-                    t.seatNumber = v.number
+                    t.seatNumber = t.seatNumber == null ? v.number : null
                     break
                   }
                 }

@@ -39,13 +39,13 @@ const formScheme = z.object({
   bookingId: z.number(),
   tourId: z.number(),
   startPointId: z.number(),
-  hotelPointId: z.number(),
+  hotelPointId: z.number().nullable(),
   routeId: z.number(),
   customers: z
     .object({
       customerId: z.number(),
       customerName: z.string(),
-      seatNumber: z.number(),
+      seatNumber: z.number().nullable(),
     })
     .array(),
 })
@@ -278,6 +278,7 @@ function RouteComponent() {
                                 size='sm'
                                 label='Гостиница'
                                 intent='primary'
+                                optional
                                 items={currentRoute?.hotels.map((v) => ({ id: v.id, name: v.hotel.name })) || []}
                                 onSelectionChange={(v) => field.onChange(Number(v))}
                                 selectedKey={field.value?.toString() || null}
@@ -307,7 +308,7 @@ function RouteComponent() {
               <div className='mt-8 mb-6'>
                 <div className='grid grid-cols-[max-content_max-content_max-content_max-content_max-content] items-center gap-x-4 gap-y-2'>
                   <p>
-                    Стоимость <span className='font-medium'>трансфера</span>
+                    Стоимость <span className='font-medium'>проезда</span>
                   </p>
                   <p>Взр.</p>
                   <div className={boxCva({})}>

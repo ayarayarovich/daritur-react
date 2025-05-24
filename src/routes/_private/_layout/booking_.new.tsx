@@ -31,13 +31,13 @@ export const Route = createFileRoute('/_private/_layout/booking_/new')({
 const formScheme = z.object({
   tourId: z.number(),
   startPointId: z.number(),
-  hotelPointId: z.number(),
+  hotelPointId: z.number().nullable(),
   routeId: z.number(),
   customers: z
     .object({
       customerId: z.number(),
       customerName: z.string(),
-      seatNumber: z.number(),
+      seatNumber: z.number().nullable(),
     })
     .array(),
 })
@@ -66,6 +66,7 @@ function RouteComponent() {
   const form = useForm<z.infer<typeof formScheme>>({
     resolver: zodResolver(formScheme),
     defaultValues: {
+      hotelPointId: null,
       customers: [],
     },
     disabled: !selectedTourId,
@@ -189,7 +190,7 @@ function RouteComponent() {
                   className='flex items-center gap-2 text-sm'
                   size='sm'
                   intent='ghost'
-                  onPress={() => customersFieldArray.append({} as never)}
+                  onPress={() => customersFieldArray.append({ seatNumber: null } as never)}
                 >
                   <LuPlus />
                   Добавить заказчика
@@ -315,7 +316,7 @@ function RouteComponent() {
               <div className='mt-8 mb-6'>
                 <div className='grid grid-cols-[max-content_max-content_max-content_max-content_max-content] items-center gap-x-4 gap-y-2'>
                   <p>
-                    Стоимость <span className='font-medium'>трансфера</span>
+                    Стоимость <span className='font-medium'>проезда</span>
                   </p>
                   <p>Взр.</p>
                   <div className={boxCva({})}>

@@ -168,10 +168,10 @@ export const prepareDate = async (payload: { tour_id: number }) => {
 export const createBooking = async (payload: {
   tourId: number
   startPointId: number
-  hotelPointId: number
+  hotelPointId: number | null
   customers: {
     customerId: number
-    seatNumber: number
+    seatNumber: number | null
   }[]
 }) => {
   const response = await Axios.privateClient.post('/react-admin/booking/bookings', payload)
@@ -185,10 +185,10 @@ export const updateBooking = async (payload: {
   bookingId: number
   tourId: number
   startPointId: number
-  hotelPointId: number
+  hotelPointId: number | null
   customers: {
     customerId: number
-    seatNumber: number
+    seatNumber: number | null
   }[]
 }) => {
   const response = await Axios.privateClient.put('/react-admin/booking/bookings/' + payload.bookingId, payload)

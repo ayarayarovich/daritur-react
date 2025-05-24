@@ -67,8 +67,8 @@ const baseFormScheme = z.object({
     .array(),
   priceTransferAdult: z.number().refine(...requiredFieldRefine()),
   priceTransferChild: z.number().refine(...requiredFieldRefine()),
-  priceParticipateAdult: z.number().refine(...requiredFieldRefine()),
-  priceParticipateChild: z.number().refine(...requiredFieldRefine()),
+  priceParticipateAdult: z.number().refine((val: unknown) => !!val || val === 0, 'Обязательное поле'),
+  priceParticipateChild: z.number().refine((val: unknown) => !!val || val === 0, 'Обязательное поле'),
   discount: z.number().refine(...requiredFieldRefine()),
   approveType: z.union([z.literal('need_request'), z.literal('auto_approve'), z.literal('no_approve')]).refine(...requiredFieldRefine()),
   durationDays: z.number().refine(...requiredFieldRefine()),
@@ -468,7 +468,7 @@ function RouteComponent() {
           </div>
           <div className='mb-6 grid grid-cols-[max-content_max-content_max-content_max-content_max-content] gap-x-4 gap-y-2'>
             <p>
-              Стоимость <span className='font-medium'>трансфера</span>
+              Стоимость <span className='font-medium'>проезда</span>
             </p>
             <p>Взр.</p>
             <Controller

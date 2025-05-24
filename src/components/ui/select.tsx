@@ -1,9 +1,11 @@
 import { useRef } from 'react'
 import { AriaSelectOptions, HiddenSelect, useSelect } from 'react-aria'
 import { Button } from 'react-aria-components'
+import { HiX } from 'react-icons/hi'
 import { HiArrowDown } from 'react-icons/hi2'
 import { useSelectState } from 'react-stately'
 
+import MyButton from '@/components/ui/button'
 import { cn, twMergifyCva } from '@/lib/utils'
 import { CollectionBase } from '@react-types/shared'
 import { cva, VariantProps } from 'class-variance-authority'
@@ -61,9 +63,11 @@ const buttonCva = twMergifyCva(
 
 type Variants = VariantProps<typeof labelCva> & VariantProps<typeof boxCva> & VariantProps<typeof buttonCva>
 
-interface Props<T> extends AriaSelectOptions<T>, CollectionBase<T>, Omit<Variants, 'isDisabled' | 'isInvalid'> {}
+interface Props<T> extends AriaSelectOptions<T>, CollectionBase<T>, Omit<Variants, 'isDisabled' | 'isInvalid'> {
+  optional?: boolean
+}
 
-export default function Select<T extends object>({ size = 'md', intent = 'primary', isInvalid, ...props }: Props<T>) {
+export default function Select<T extends object>({ size = 'md', intent = 'primary', isInvalid, optional, ...props }: Props<T>) {
   // Create state based on the incoming props
   const state = useSelectState(props)
 
@@ -80,18 +84,25 @@ export default function Select<T extends object>({ size = 'md', intent = 'primar
         } as Record<string, string>
       }
     >
-      <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>
-        <Button
-          {...triggerProps}
-          ref={ref}
-          className={buttonCva({ intent, size, className: 'flex cursor-pointer items-center justify-between gap-2' })}
-        >
-          <span {...valueProps}>{state.selectedItem ? state.selectedItem.rendered : (props.placeholder ?? 'Выберите')}</span>
-          <HiArrowDown className={cn('transition-transform', state.isOpen ? 'rotate-180' : 'rotate-0')} />
-        </Button>
-        <label className={labelCva({ intent, size, className: 'hidden peer-placeholder-shown:block' })} {...labelProps}>
-          {props.label}
-        </label>
+      <div className='flex items-center gap-1'>
+        <div className={boxCva({ intent, isDisabled: props.isDisabled, isInvalid })}>
+          <Button
+            {...triggerProps}
+            ref={ref}
+            className={buttonCva({ intent, size, className: 'flex cursor-pointer items-center justify-between gap-2' })}
+          >
+            <span {...valueProps}>{state.selectedItem ? state.selectedItem.rendered : (props.placeholder ?? 'Выберите')}</span>
+            <HiArrowDown className={cn('transition-transform', state.isOpen ? 'rotate-180' : 'rotate-0')} />
+          </Button>
+          <label className={labelCva({ intent, size, className: 'hidden peer-placeholder-shown:block' })} {...labelProps}>
+            {props.label}
+          </label>
+        </div>
+        {!!optional && !!state.selectedItem && (
+          <MyButton type='button' intent='secondary' size='xs' onPress={() => state.setSelectedKey(null)}>
+            <HiX />
+          </MyButton>
+        )}
       </div>
       {props.description && (
         <div {...descriptionProps} style={{ fontSize: 12 }}>
