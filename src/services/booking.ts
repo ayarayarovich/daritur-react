@@ -56,6 +56,45 @@ export const listBookings = async (payload: { limit: number; offset: number; sea
 
 export const prepareDate = async (payload: { tour_id: number }) => {
   const response = await Axios.privateClient.get('/react-admin/booking/bookings/prepare/' + payload.tour_id)
+  const busSchema = z.object({
+    busType: z.string(),
+    name: z.string(),
+    schema: z.object({
+      floors: z
+        .object({
+          places: z.number(),
+          lines: z
+            .object({
+              items: z
+                .union([
+                  z.object({
+                    placeType: z.literal('seat'),
+                    number: z.number(),
+                    isBlocked: z.boolean().nullable(),
+                  }),
+                  z.object({
+                    placeType: z.literal('driver'),
+                  }),
+                  z.object({
+                    placeType: z.literal('toilet'),
+                  }),
+                  z.object({
+                    placeType: z.literal('guide'),
+                  }),
+                  z.object({
+                    placeType: z.literal('empty'),
+                  }),
+                  z.object({
+                    placeType: z.literal('entrance'),
+                  }),
+                ])
+                .array(),
+            })
+            .array(),
+        })
+        .array(),
+    }),
+  })
   const scheme = z.object({
     tour: z.object({
       countryId: z.number(),
@@ -115,45 +154,8 @@ export const prepareDate = async (payload: { tour_id: number }) => {
         operatorId: z.number(),
         name: z.string(),
       }),
-      busSchema: z.object({
-        busType: z.string(),
-        name: z.string(),
-        schema: z.object({
-          floors: z
-            .object({
-              places: z.number(),
-              lines: z
-                .object({
-                  items: z
-                    .union([
-                      z.object({
-                        placeType: z.literal('seat'),
-                        number: z.number(),
-                        isBlocked: z.boolean().nullable(),
-                      }),
-                      z.object({
-                        placeType: z.literal('driver'),
-                      }),
-                      z.object({
-                        placeType: z.literal('toilet'),
-                      }),
-                      z.object({
-                        placeType: z.literal('guide'),
-                      }),
-                      z.object({
-                        placeType: z.literal('empty'),
-                      }),
-                      z.object({
-                        placeType: z.literal('entrance'),
-                      }),
-                    ])
-                    .array(),
-                })
-                .array(),
-            })
-            .array(),
-        }),
-      }),
+      busSchema: busSchema,
+      busSchemaFrom: busSchema,
       images: z
         .object({
           id: z.number(),
@@ -223,6 +225,7 @@ export const getBooking = async (payload: { id: number }) => {
   const response = await Axios.privateClient.get('/react-admin/booking/bookings/' + payload.id)
   const scheme = z.object({
     id: z.number(),
+    routeId: z.number(),
     number: z.string(),
     status: z.string(),
     tour: z.object({
@@ -247,14 +250,16 @@ export const getBooking = async (payload: { id: number }) => {
         })
         .array(),
     }),
-    hotelPoint: z.object({
-      id: z.number(),
-      hotel: z.object({
+    hotelPoint: z
+      .object({
         id: z.number(),
-        name: z.string(),
-      }),
-      foodType: z.string(),
-    }),
+        hotel: z.object({
+          id: z.number(),
+          name: z.string(),
+        }),
+        foodType: z.string(),
+      })
+      .nullable(),
     priceFinal: z.number(),
     startPoint: z.object({
       id: z.number(),
@@ -272,7 +277,8 @@ export const getBooking = async (payload: { id: number }) => {
           lastName: z.string(),
           middleName: z.string(),
         }),
-        seatNumber: z.number(),
+        seatNumber: z.number().nullable(),
+        seatNumberFrom: z.number().nullable(),
       })
       .array(),
   })

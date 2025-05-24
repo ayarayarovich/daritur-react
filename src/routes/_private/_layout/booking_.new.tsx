@@ -38,6 +38,7 @@ const formScheme = z.object({
       customerId: z.number(),
       customerName: z.string(),
       seatNumber: z.number().nullable(),
+      seatNumberFrom: z.number().nullable(),
     })
     .array(),
 })
@@ -175,6 +176,7 @@ function RouteComponent() {
                           customersFieldArray.update(idx, {
                             customerId: selected.id,
                             seatNumber: v.seatNumber,
+                            seatNumberFrom: v.seatNumberFrom,
                             customerName: selected.customerName,
                           })
                         }
@@ -229,11 +231,58 @@ function RouteComponent() {
                 </div>
               </div>
               <div className='mt-4'>
+                <div>Туда</div>
                 <Controller
                   control={form.control}
                   name='customers'
                   render={({ field }) => (
-                    <BusSeatSelector floors={prepareDate.data.tour.busSchema.schema.floors} value={field.value} onChange={field.onChange} />
+                    <BusSeatSelector
+                      floors={prepareDate.data.tour.busSchema.schema.floors}
+                      value={field.value.map((v) => ({
+                        customerId: v.customerId,
+                        customerName: v.customerName,
+                        seatNumber: v.seatNumber,
+                      }))}
+                      onChange={(v) => {
+                        field.onChange(
+                          field.value.map((f) => {
+                            const item = v.find((k) => k.customerId === f.customerId)!
+                            return {
+                              ...f,
+                              seatNumber: item.seatNumber,
+                            }
+                          }),
+                        )
+                      }}
+                    />
+                  )}
+                />
+              </div>
+              <div className='mt-4'>
+                <div>Обратно</div>
+                <Controller
+                  control={form.control}
+                  name='customers'
+                  render={({ field }) => (
+                    <BusSeatSelector
+                      floors={prepareDate.data.tour.busSchemaFrom.schema.floors}
+                      value={field.value.map((v) => ({
+                        customerId: v.customerId,
+                        customerName: v.customerName,
+                        seatNumber: v.seatNumberFrom,
+                      }))}
+                      onChange={(v) => {
+                        field.onChange(
+                          field.value.map((f) => {
+                            const item = v.find((k) => k.customerId === f.customerId)!
+                            return {
+                              ...f,
+                              seatNumberFrom: item.seatNumber,
+                            }
+                          }),
+                        )
+                      }}
+                    />
                   )}
                 />
               </div>

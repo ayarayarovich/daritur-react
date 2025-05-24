@@ -46,6 +46,7 @@ const formScheme = z.object({
       customerId: z.number(),
       customerName: z.string(),
       seatNumber: z.number().nullable(),
+      seatNumberFrom: z.number().nullable(),
     })
     .array(),
 })
@@ -64,7 +65,7 @@ function RouteComponent() {
     resolver: zodResolver(formScheme),
     defaultValues: async () => {
       const booking = await Query.client.fetchQuery(Queries.booking.detail({ id: ctx.params.id }))
-      const routeId = booking.tour.route.find((v) => !!v.hotels.find((h) => h.hotel.id === booking.hotelPoint.hotel.id))?.id
+      const routeId = booking.tour.route.find((v) => v.id === booking.routeId)?.id
       if (!routeId) {
         toast.error('Маршрут не найден')
         throw new Error('Route not found')
@@ -73,12 +74,13 @@ function RouteComponent() {
         bookingId: booking.id,
         tourId: booking.tour.id,
         startPointId: booking.startPoint.id,
-        hotelPointId: booking.hotelPoint.id,
+        hotelPointId: booking.hotelPoint?.id ?? null,
         routeId: routeId,
         customers: booking.customers.map((v) => ({
           customerId: v.customer.id,
           customerName: `${v.customer.lastName} ${v.customer.firstName} ${v.customer.middleName}`,
           seatNumber: v.seatNumber,
+          seatNumberFrom: v.seatNumberFrom,
         })),
       }
     },
@@ -167,6 +169,7 @@ function RouteComponent() {
                             customerId: selected.id,
                             seatNumber: v.seatNumber,
                             customerName: selected.customerName,
+                            seatNumberFrom: v.seatNumberFrom,
                           })
                         }
                       />
@@ -220,11 +223,58 @@ function RouteComponent() {
                 </div>
               </div>
               <div className='mt-4'>
+                <div>Туда</div>
                 <Controller
                   control={form.control}
                   name='customers'
                   render={({ field }) => (
-                    <BusSeatSelector floors={prepareDate.data.tour.busSchema.schema.floors} value={field.value} onChange={field.onChange} />
+                    <BusSeatSelector
+                      floors={prepareDate.data.tour.busSchema.schema.floors}
+                      value={field.value.map((v) => ({
+                        customerId: v.customerId,
+                        customerName: v.customerName,
+                        seatNumber: v.seatNumber,
+                      }))}
+                      onChange={(v) => {
+                        field.onChange(
+                          field.value.map((f) => {
+                            const item = v.find((k) => k.customerId === f.customerId)!
+                            return {
+                              ...f,
+                              seatNumber: item.seatNumber,
+                            }
+                          }),
+                        )
+                      }}
+                    />
+                  )}
+                />
+              </div>
+              <div className='mt-4'>
+                <div>Обратно</div>
+                <Controller
+                  control={form.control}
+                  name='customers'
+                  render={({ field }) => (
+                    <BusSeatSelector
+                      floors={prepareDate.data.tour.busSchemaFrom.schema.floors}
+                      value={field.value.map((v) => ({
+                        customerId: v.customerId,
+                        customerName: v.customerName,
+                        seatNumber: v.seatNumberFrom,
+                      }))}
+                      onChange={(v) => {
+                        field.onChange(
+                          field.value.map((f) => {
+                            const item = v.find((k) => k.customerId === f.customerId)!
+                            return {
+                              ...f,
+                              seatNumberFrom: item.seatNumber,
+                            }
+                          }),
+                        )
+                      }}
+                    />
                   )}
                 />
               </div>
