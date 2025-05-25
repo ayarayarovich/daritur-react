@@ -38,7 +38,6 @@ export const Route = createFileRoute('/_private/_layout/booking_/$id')({
 const formScheme = z.object({
   bookingId: z.number(),
   tourId: z.number(),
-  cityId: z.number(),
   startPointId: z.number(),
   hotelPointId: z.number().nullable(),
   routeId: z.number(),
@@ -103,8 +102,10 @@ function RouteComponent() {
         toast.error('Маршрут не найден')
         throw new Error('Route not found')
       }
-      vals.cityId = route.city.id
-      return BookingService.updateBooking(vals)
+      return BookingService.updateBooking({
+        ...vals,
+        cityId: route.city.id,
+      })
     }
     await toast.promise(action(), {
       loading: 'Секунду...',

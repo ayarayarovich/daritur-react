@@ -33,7 +33,6 @@ const formScheme = z.object({
   startPointId: z.number(),
   hotelPointId: z.number().nullable(),
   routeId: z.number(),
-  cityId: z.number(),
   customers: z
     .object({
       customerId: z.number(),
@@ -88,8 +87,10 @@ function RouteComponent() {
         toast.error('Маршрут не найден')
         throw new Error('Route not found')
       }
-      vals.cityId = route.city.id
-      return BookingService.createBooking(vals)
+      return BookingService.createBooking({
+        ...vals,
+        cityId: route.city.id,
+      })
     }
     await toast.promise(action(), {
       loading: 'Секунду...',
