@@ -170,6 +170,7 @@ export const prepareDate = async (payload: { tour_id: number }) => {
 export const createBooking = async (payload: {
   tourId: number
   startPointId: number
+  cityId: number
   hotelPointId: number | null
   customers: {
     customerId: number
@@ -186,6 +187,7 @@ export const createBooking = async (payload: {
 export const updateBooking = async (payload: {
   bookingId: number
   tourId: number
+  cityId: number
   startPointId: number
   hotelPointId: number | null
   customers: {
@@ -225,7 +227,10 @@ export const getBooking = async (payload: { id: number }) => {
   const response = await Axios.privateClient.get('/react-admin/booking/bookings/' + payload.id)
   const scheme = z.object({
     id: z.number(),
-    routeId: z.number(),
+    city: z.object({
+      id: z.number(),
+      name: z.string(),
+    }),
     number: z.string(),
     status: z.string(),
     tour: z.object({

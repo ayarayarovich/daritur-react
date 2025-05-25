@@ -38,6 +38,7 @@ export const Route = createFileRoute('/_private/_layout/booking_/$id')({
 const formScheme = z.object({
   bookingId: z.number(),
   tourId: z.number(),
+  cityId: z.number(),
   startPointId: z.number(),
   hotelPointId: z.number().nullable(),
   routeId: z.number(),
@@ -65,7 +66,7 @@ function RouteComponent() {
     resolver: zodResolver(formScheme),
     defaultValues: async () => {
       const booking = await Query.client.fetchQuery(Queries.booking.detail({ id: ctx.params.id }))
-      const routeId = booking.tour.route.find((v) => v.id === booking.routeId)?.id
+      const routeId = booking.tour.route.find((v) => v.city.id === booking.city.id)?.id
       if (!routeId) {
         toast.error('Маршрут не найден')
         throw new Error('Route not found')
@@ -73,6 +74,7 @@ function RouteComponent() {
       return {
         bookingId: booking.id,
         tourId: booking.tour.id,
+        cityId: booking.city.id,
         startPointId: booking.startPoint.id,
         hotelPointId: booking.hotelPoint?.id ?? null,
         routeId: routeId,
@@ -95,6 +97,13 @@ function RouteComponent() {
 
   const submitHandler: SubmitHandler<z.infer<typeof formScheme>> = async (vals) => {
     const action = async () => {
+      const booking = await Query.client.fetchQuery(Queries.booking.detail({ id: ctx.params.id }))
+      const route = booking.tour.route.find((v) => v.id === vals.routeId)
+      if (!route) {
+        toast.error('Маршрут не найден')
+        throw new Error('Route not found')
+      }
+      vals.cityId = route.city.id
       return BookingService.updateBooking(vals)
     }
     await toast.promise(action(), {

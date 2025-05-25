@@ -33,6 +33,7 @@ const formScheme = z.object({
   startPointId: z.number(),
   hotelPointId: z.number().nullable(),
   routeId: z.number(),
+  cityId: z.number(),
   customers: z
     .object({
       customerId: z.number(),
@@ -81,6 +82,13 @@ function RouteComponent() {
 
   const submitHandler: SubmitHandler<z.infer<typeof formScheme>> = async (vals) => {
     const action = async () => {
+      const data = await Query.client.fetchQuery(Queries.booking.prepareDate({ tour_id: selectedTourId ?? 0 }))
+      const route = data.tour.route.find((v) => v.id === vals.routeId)
+      if (!route) {
+        toast.error('Маршрут не найден')
+        throw new Error('Route not found')
+      }
+      vals.cityId = route.city.id
       return BookingService.createBooking(vals)
     }
     await toast.promise(action(), {
