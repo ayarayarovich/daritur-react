@@ -98,7 +98,7 @@ function EventsCalendarCell({ state, date, groupedEvents }: EventsCalendarCellPr
             type='button'
             onClick={() => navigate({ to: '/booking/new', search: { tour: v.tourId } })}
             className={cn(
-              'rounded-md border-2 px-2 py-1 text-xs',
+              'rounded-md border-2 px-2 py-1 text-xs select-none not-disabled:cursor-pointer',
               idx % 1 === 0 && 'border-[#805AD5] bg-[#805AD5]/5',
               idx % 2 === 0 && 'border-[#27AE60] bg-[#27AE60]/5',
               idx % 3 === 0 && 'border-[#DD6B20] bg-[#DD6B20]/5',
