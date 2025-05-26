@@ -18,6 +18,7 @@ import { BookingService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { DateTime } from 'luxon'
 import { omit } from 'radashi'
 import { z } from 'zod'
 
@@ -51,7 +52,7 @@ function RouteComponent() {
     enabled: !!selectedTourId,
   })
 
-  const availableTours = useAsyncList<{ id: number; name: string }>({
+  const availableTours = useAsyncList<{ id: number; name: string; nearDate: DateTime }>({
     async load({ filterText, signal }) {
       signal.addEventListener('abort', () => {
         console.log('cancel', filterText)
@@ -152,7 +153,11 @@ function RouteComponent() {
                     form.setValue('tourId', Number(v))
                   }}
                 >
-                  {(item) => <Item key={item.id.toString()}>{item.name}</Item>}
+                  {(item) => (
+                    <Item key={item.id.toString()}>
+                      #{item.id}: {item.name} (Ближайший: {item.nearDate.toFormat('dd.MM.yyyy')})
+                    </Item>
+                  )}
                 </ComboBox>
               </>
             )}
