@@ -29,10 +29,12 @@ import Queries from '@/shared/queries'
 export const Route = createFileRoute('/_private/_layout/booking_/new')({
   component: RouteComponent,
   beforeLoad: async ({ search }) => {
-    const toursForBooking = await Query.client.fetchQuery(Queries.tours.list({ offset: 0, limit: 100000, filters: ['is_booking'] }))
-    if (!toursForBooking.items.find((v) => v.id === search.tour)) {
-      toast.error('Данный тур закрыт для брони.')
-      redirect({ to: '/booking' })
+    if (search.tour) {
+      const toursForBooking = await Query.client.fetchQuery(Queries.tours.list({ offset: 0, limit: 100000, filters: ['is_booking'] }))
+      if (!toursForBooking.items.find((v) => v.id === search.tour)) {
+        toast.error('Данный тур закрыт для брони.')
+        redirect({ to: '/booking' })
+      }
     }
     return {
       initialTourId: search.tour,
@@ -40,10 +42,7 @@ export const Route = createFileRoute('/_private/_layout/booking_/new')({
   },
   validateSearch: zodValidator(
     z.object({
-      tour: z.coerce
-        .number()
-        .optional()
-        .transform((v) => v || null),
+      tour: z.coerce.number().optional(),
     }),
   ),
 })
@@ -66,7 +65,7 @@ const formScheme = z.object({
 function RouteComponent() {
   const ctx = Route.useRouteContext()
   const navigate = Route.useNavigate()
-  const [selectedTourId, setSelectedTourId] = useState<number | null>(ctx.initialTourId)
+  const [selectedTourId, setSelectedTourId] = useState<number | null>(ctx.initialTourId ?? null)
   const prepareDate = useQuery({
     ...Queries.booking.prepareDate({ tour_id: selectedTourId ?? 0 }),
     enabled: !!selectedTourId,
