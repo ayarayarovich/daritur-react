@@ -11,6 +11,7 @@ export const Route = createFileRoute('/_private/_layout/')({
     const first = menu[0]
     if (!first) {
       toast.error('У вас нет доступов!')
+      throw new Error('У вас нет доступов!')
     }
     throw redirect({ to: `/${first.path}` })
   },
