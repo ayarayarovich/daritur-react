@@ -18,6 +18,7 @@ import { BookingService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { zodValidator } from '@tanstack/zod-adapter'
 import { DateTime } from 'luxon'
 import { omit } from 'radashi'
 import { z } from 'zod'
@@ -27,6 +28,19 @@ import Queries from '@/shared/queries'
 
 export const Route = createFileRoute('/_private/_layout/booking_/new')({
   component: RouteComponent,
+  beforeLoad: async ({ search }) => {
+    return {
+      initialTourId: search.tour,
+    }
+  },
+  validateSearch: zodValidator(
+    z.object({
+      tour: z.coerce
+        .number()
+        .optional()
+        .transform((v) => v || null),
+    }),
+  ),
 })
 
 const formScheme = z.object({
@@ -45,8 +59,9 @@ const formScheme = z.object({
 })
 
 function RouteComponent() {
+  const ctx = Route.useRouteContext()
   const navigate = Route.useNavigate()
-  const [selectedTourId, setSelectedTourId] = useState<number | null>(null)
+  const [selectedTourId, setSelectedTourId] = useState<number | null>(ctx.initialTourId)
   const prepareDate = useQuery({
     ...Queries.booking.prepareDate({ tour_id: selectedTourId ?? 0 }),
     enabled: !!selectedTourId,

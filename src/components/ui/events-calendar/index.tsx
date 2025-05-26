@@ -4,6 +4,7 @@ import { CalendarState } from 'react-stately'
 
 import { cn } from '@/lib/utils'
 import { DateValue, endOfWeek, startOfWeek } from '@internationalized/date'
+import { useNavigate } from '@tanstack/react-router'
 import { group, mapValues } from 'radashi'
 
 interface Props extends AriaCalendarGridProps {
@@ -11,6 +12,7 @@ interface Props extends AriaCalendarGridProps {
   events: {
     date: DateValue
     items: {
+      tourId: number
       title: string
     }[]
   }[]
@@ -76,6 +78,7 @@ interface EventsCalendarCellProps extends AriaCalendarCellProps {
   groupedEvents: Record<
     string,
     | {
+        tourId: number
         title: string
       }[]
     | undefined
@@ -83,6 +86,7 @@ interface EventsCalendarCellProps extends AriaCalendarCellProps {
 }
 
 function EventsCalendarCell({ state, date, groupedEvents }: EventsCalendarCellProps) {
+  const navigate = useNavigate()
   const ref = useRef(null)
   const { cellProps, buttonProps, isOutsideVisibleRange, formattedDate } = useCalendarCell({ date }, state as never, ref)
 
@@ -90,7 +94,9 @@ function EventsCalendarCell({ state, date, groupedEvents }: EventsCalendarCellPr
     <td {...cellProps} className={cn('border-gray-5 relative border', isOutsideVisibleRange && 'bg-gray-6')}>
       <div {...buttonProps} ref={ref} className={cn('flex h-full min-h-32 w-40 flex-col items-stretch gap-1 p-2')}>
         {groupedEvents[date.toString()]?.map((v, idx) => (
-          <div
+          <button
+            type='button'
+            onClick={() => navigate({ to: '/booking/new', search: { tour: v.tourId } })}
             className={cn(
               'rounded-md border-2 px-2 py-1 text-xs',
               idx % 1 === 0 && 'border-[#805AD5] bg-[#805AD5]/5',
@@ -102,7 +108,7 @@ function EventsCalendarCell({ state, date, groupedEvents }: EventsCalendarCellPr
             key={v.title + idx}
           >
             {v.title}
-          </div>
+          </button>
         ))}
         <div className='mt-1 h-[1em]'></div>
         <div className='text-gray-3 absolute right-2 bottom-2 self-end leading-none'>{formattedDate}</div>
