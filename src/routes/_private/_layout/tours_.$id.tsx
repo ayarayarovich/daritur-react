@@ -781,6 +781,18 @@ function RouteItem({ fieldIdx, remove }: { fieldIdx: number; remove: (index?: nu
         </div>
       </div>
       <div className='flex flex-col items-stretch gap-2'>
+        {hotelsFieldArray.fields.length === 0 && (
+          <Button
+            className='mt-2 flex w-fit items-center gap-1 text-sm opacity-75'
+            intent='ghost'
+            size='sm'
+            type='button'
+            onPress={() => hotelsFieldArray.append({} as never)}
+          >
+            <HiOutlineOfficeBuilding />
+            Добавить гостиницу
+          </Button>
+        )}
         {hotelsFieldArray.fields.map((v, idx) => (
           <div key={v.key} className='rounded-md bg-yellow-400/40 p-4'>
             <div className='flex justify-end'>
