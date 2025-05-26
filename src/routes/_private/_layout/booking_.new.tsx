@@ -33,7 +33,7 @@ export const Route = createFileRoute('/_private/_layout/booking_/new')({
       const toursForBooking = await Query.client.fetchQuery(Queries.tours.list({ offset: 0, limit: 100000, filters: ['is_booking'] }))
       if (!toursForBooking.items.find((v) => v.id === search.tour)) {
         toast.error('Данный тур закрыт для брони.')
-        redirect({ to: '/booking' })
+        throw redirect({ to: '/booking' })
       }
     }
     return {
