@@ -117,7 +117,7 @@ function RouteComponent() {
       ],
       route: [
         {
-          hotels: [{}],
+          hotels: [],
         },
       ],
       _images: [],
@@ -762,13 +762,11 @@ function RouteItem({ fieldIdx, remove }: { fieldIdx: number; remove: (index?: nu
       <div className='flex flex-col items-stretch gap-2'>
         {hotelsFieldArray.fields.map((v, idx) => (
           <div key={v.key} className='rounded-md bg-yellow-400/40 p-4'>
-            {idx > 0 && (
-              <div className='flex justify-end'>
-                <Button type='button' intent='ghost' size='sm' onPress={() => hotelsFieldArray.remove(idx)}>
-                  <HiX />
-                </Button>
-              </div>
-            )}
+            <div className='flex justify-end'>
+              <Button type='button' intent='ghost' size='sm' onPress={() => hotelsFieldArray.remove(idx)}>
+                <HiX />
+              </Button>
+            </div>
             <div className='grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2'>
               <p>Гостиница</p>
               <div className='w-max'>
