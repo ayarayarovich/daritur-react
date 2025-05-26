@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useFieldArray, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { HiOutlineUpload } from 'react-icons/hi'
@@ -94,6 +94,12 @@ function RouteComponent() {
     },
     disabled: !selectedTourId,
   })
+
+  useEffect(() => {
+    if (ctx.initialTourId) {
+      form.setValue('tourId', ctx.initialTourId)
+    }
+  }, [ctx.initialTourId, form])
 
   const customersFieldArray = useFieldArray({
     control: form.control,
