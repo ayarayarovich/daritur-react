@@ -176,7 +176,7 @@ function RouteComponent() {
                 >
                   {(item) => (
                     <Item key={item.id.toString()}>
-                      #{item.id}: {item.name} (Ближайший: {item.nearDate.toFormat('dd.MM.yyyy')})
+                      #{item.id}: {item.name}
                     </Item>
                   )}
                 </ComboBox>
