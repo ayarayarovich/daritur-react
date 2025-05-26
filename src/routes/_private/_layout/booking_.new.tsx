@@ -350,6 +350,7 @@ function RouteComponent() {
                                 size='sm'
                                 label='Гостиница'
                                 intent='primary'
+                                optional
                                 items={currentRoute?.hotels.map((v) => ({ id: v.id, name: v.hotel.name })) || []}
                                 onSelectionChange={(v) => field.onChange(Number(v))}
                                 selectedKey={field.value?.toString() || null}
