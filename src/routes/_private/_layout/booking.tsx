@@ -1,15 +1,20 @@
 import { useCallback, useMemo, useState } from 'react'
-import { CheckboxGroup, Checkbox as RACCheckbox } from 'react-aria-components'
+import { useCalendar } from 'react-aria'
+import { Button as AriaButton, CheckboxGroup, Checkbox as RACCheckbox, useLocale } from 'react-aria-components'
 import toast from 'react-hot-toast'
+import { BiChevronLeft, BiChevronRight } from 'react-icons/bi'
 import { HiX } from 'react-icons/hi'
 import { HiPencil, HiPlus, HiPrinter, HiTrash } from 'react-icons/hi2'
+import { useCalendarState } from 'react-stately'
 
 import { DataTable } from '@/components/data-table'
 import Button from '@/components/ui/button'
 import Checkbox from '@/components/ui/checkbox'
+import EventsCalendarGrid from '@/components/ui/events-calendar'
 import TextField from '@/components/ui/text-field'
-import { extractErrorMessageFromAPIError } from '@/lib/utils'
+import { cn, extractErrorMessageFromAPIError } from '@/lib/utils'
 import { BookingService } from '@/services'
+import { createCalendar, parseDate, today } from '@internationalized/date'
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
@@ -297,6 +302,110 @@ function RouteComponent() {
         </div>
         <div className='w-min min-w-2xl'>
           <DataTable table={table} />
+        </div>
+        <ToursCalendar filters={[]} />
+      </div>
+    </div>
+  )
+}
+
+function ToursCalendar(props: { filters: string[] }) {
+  const { locale } = useLocale()
+  const [visibleDuration, setVisibleDuration] = useState<'month' | 'week'>('month')
+  const state = useCalendarState({
+    createCalendar,
+    isDisabled: true,
+    visibleDuration: {
+      month: { months: 1 },
+      week: { weeks: 1 },
+    }[visibleDuration],
+    locale,
+  })
+  const calendarQuery = useQuery(
+    Queries.tours.calendar({
+      date_gte: DateTime.fromJSDate(state.visibleRange.start.toDate(state.timeZone)),
+      date_lte: DateTime.fromJSDate(state.visibleRange.end.toDate(state.timeZone)),
+      filters: props.filters,
+    }),
+  )
+
+  const { calendarProps, prevButtonProps, nextButtonProps, title } = useCalendar(
+    {
+      'aria-label': 'Event date',
+    },
+    state as never,
+  )
+
+  const focusToday = () => {
+    state.setFocusedDate(today(state.timeZone))
+  }
+
+  return (
+    <div className='flex flex-col items-stretch gap-16'>
+      <div {...calendarProps} className='flex flex-col items-stretch gap-3'>
+        <div className='flex items-center gap-4'>
+          <div className='text-xl font-medium text-nowrap'>Календарь туров</div>
+        </div>
+        <div className='w-fit min-w-2xl'>
+          <div className='mb-2 flex items-center'>
+            <div className='flex flex-1 justify-start'>
+              <button
+                onClick={focusToday}
+                type='button'
+                className='border-gray-5 rounded-full border px-4 py-2 not-disabled:cursor-pointer'
+              >
+                Сегодня:{' '}
+                {today(state.timeZone).toDate(state.timeZone).toLocaleDateString(undefined, {
+                  dateStyle: 'full',
+                })}
+              </button>
+            </div>
+            <div className='flex items-center gap-2'>
+              <AriaButton
+                {...prevButtonProps}
+                type='button'
+                className='border-gray-5 rounded-full border px-2 py-2 not-disabled:cursor-pointer'
+              >
+                <BiChevronLeft className='size-5' />
+              </AriaButton>
+              <div className='min-w-[15ch] text-center'>{title}</div>
+              <AriaButton
+                {...nextButtonProps}
+                type='button'
+                className='border-gray-5 rounded-full border px-2 py-2 not-disabled:cursor-pointer'
+              >
+                <BiChevronRight className='size-5' />
+              </AriaButton>
+            </div>
+            <div className='flex flex-1 items-stretch justify-end *:not-first:border-l-0 *:first:rounded-l-full *:last:rounded-r-full'>
+              <button
+                type='button'
+                onClick={() => setVisibleDuration('week')}
+                className={cn('border-gray-5 border px-4 py-2 not-disabled:cursor-pointer', visibleDuration === 'week' && 'bg-gray-6')}
+              >
+                Неделя
+              </button>
+              <button
+                type='button'
+                onClick={() => setVisibleDuration('month')}
+                className={cn('border-gray-5 border px-4 py-2 not-disabled:cursor-pointer', visibleDuration === 'month' && 'bg-gray-6')}
+              >
+                Месяц
+              </button>
+            </div>
+          </div>
+          <div className={cn('transition-opacity', calendarQuery.isLoading && 'opacity-50')}>
+            <EventsCalendarGrid
+              state={state}
+              weekdayStyle='short'
+              events={
+                calendarQuery.data?.map((v) => ({
+                  date: parseDate(v.date),
+                  items: v.items,
+                })) ?? []
+              }
+            />
+          </div>
         </div>
       </div>
     </div>

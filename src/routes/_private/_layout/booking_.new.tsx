@@ -17,7 +17,7 @@ import AddCustomerModal from '@/modals/customers/add-customer-modal'
 import { BookingService } from '@/services'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { DateTime } from 'luxon'
 import { omit } from 'radashi'
@@ -29,6 +29,11 @@ import Queries from '@/shared/queries'
 export const Route = createFileRoute('/_private/_layout/booking_/new')({
   component: RouteComponent,
   beforeLoad: async ({ search }) => {
+    const toursForBooking = await Query.client.fetchQuery(Queries.tours.list({ offset: 0, limit: 100000, filters: ['is_booking'] }))
+    if (!toursForBooking.items.find((v) => v.id === search.tour)) {
+      toast.error('Данный тур закрыт для брони.')
+      redirect({ to: '/booking' })
+    }
     return {
       initialTourId: search.tour,
     }
@@ -71,9 +76,11 @@ function RouteComponent() {
     async load({ filterText, signal }) {
       signal.addEventListener('abort', () => {
         console.log('cancel', filterText)
-        Query.client.cancelQueries(Queries.tours.list({ search: filterText || '', offset: 0, limit: 20 }))
+        Query.client.cancelQueries(Queries.tours.list({ search: filterText || '', offset: 0, limit: 20, filters: ['is_booking'] }))
       })
-      const { items } = await Query.client.fetchQuery(Queries.tours.list({ search: filterText || '', offset: 0, limit: 20 }))
+      const { items } = await Query.client.fetchQuery(
+        Queries.tours.list({ search: filterText || '', offset: 0, limit: 20, filters: ['is_booking'] }),
+      )
       return {
         items: items,
       }
