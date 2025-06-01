@@ -285,7 +285,9 @@ export const getBooking = async (payload: { id: number }) => {
         seatNumber: z.number().nullable(),
         seatNumberFrom: z.number().nullable(),
       })
-      .array(),
+      .array()
+      .nullish()
+      .transform((v) => v || []),
   })
   return scheme.parse(response.data)
 }
