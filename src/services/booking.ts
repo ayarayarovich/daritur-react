@@ -208,11 +208,13 @@ export const deleteBooking = async (payload: { id: number }) => {
 }
 
 export const downloadOffer = async (payload: { id: number }) => {
-  const response = await Axios.privateClient.get('/react-admin/booking/bookings/' + payload.id + '/download-offer')
-  const scheme = z.instanceof(File)
-  const file = scheme.parse(response.data)
-  Utils.downloadFile(file)
-  return file
+  const response = await Axios.privateClient.get('/react-admin/booking/bookings/' + payload.id + '/download-offer', {
+    responseType: 'blob',
+  })
+  const scheme = z.instanceof(Blob)
+  const blob = scheme.parse(response.data)
+  Utils.downloadFile(new File([blob], `договор_заявка_${payload.id}.docx`))
+  return blob
 }
 
 export const deleteBookings = async (payload: { ids: number[] }) => {
