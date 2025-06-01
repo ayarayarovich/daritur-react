@@ -59,12 +59,13 @@ function RouteComponent() {
   const prepareDate = useQuery({
     ...Queries.booking.prepareDate({ tour_id: booking.data?.tour.id ?? 0 }),
     enabled: !!booking.data?.tour.id,
+    staleTime: 0,
   })
 
   const form = useForm<z.infer<typeof formScheme>>({
     resolver: zodResolver(formScheme),
     defaultValues: async () => {
-      const booking = await Query.client.fetchQuery(Queries.booking.detail({ id: ctx.params.id }))
+      const booking = await Query.client.fetchQuery({ ...Queries.booking.detail({ id: ctx.params.id }), staleTime: 0 })
       const routeId = booking.tour.route.find((v) => v.city.id === booking.city.id)?.id
       if (!routeId) {
         toast.error('Маршрут не найден')
@@ -96,7 +97,7 @@ function RouteComponent() {
 
   const submitHandler: SubmitHandler<z.infer<typeof formScheme>> = async (vals) => {
     const action = async () => {
-      const booking = await Query.client.fetchQuery(Queries.booking.detail({ id: ctx.params.id }))
+      const booking = await Query.client.fetchQuery({ ...Queries.booking.detail({ id: ctx.params.id }), staleTime: 0 })
       const route = booking.tour.route.find((v) => v.id === vals.routeId)
       if (!route) {
         toast.error('Маршрут не найден')
