@@ -30,7 +30,11 @@ const formSchema = z.object({
     .string()
     .transform((v) => v || null)
     .refine((v) => (v ? isValidPhoneNumber(v) : true), 'Некорректный номер'),
-  email: z.string().email().or(z.literal('')),
+  email: z
+    .string()
+    .email()
+    .or(z.literal(''))
+    .transform((v) => v || null),
   birthday: z.instanceof(CalendarDate, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
   passportSerial: z.string().refine(...requiredFieldRefine()),
   passportGivenAt: z.instanceof(CalendarDate, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
@@ -157,22 +161,6 @@ export default function AddCustomerModal(props: Props) {
               </ComboBox>
             </div>
             <div className='mb-8 grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2 [&_p]:text-end'>
-              <p>Имя</p>
-              <Controller
-                control={form.control}
-                name='firstName'
-                render={({ field, fieldState }) => (
-                  <TextField
-                    size='sm'
-                    label='Имя'
-                    intent='primary'
-                    {...field}
-                    errorMessage={fieldState.error?.message}
-                    isInvalid={fieldState.invalid}
-                  />
-                )}
-              />
-
               <p>Фамилия</p>
               <Controller
                 control={form.control}
@@ -181,6 +169,22 @@ export default function AddCustomerModal(props: Props) {
                   <TextField
                     size='sm'
                     label='Фамилия'
+                    intent='primary'
+                    {...field}
+                    errorMessage={fieldState.error?.message}
+                    isInvalid={fieldState.invalid}
+                  />
+                )}
+              />
+
+              <p>Имя</p>
+              <Controller
+                control={form.control}
+                name='firstName'
+                render={({ field, fieldState }) => (
+                  <TextField
+                    size='sm'
+                    label='Имя'
                     intent='primary'
                     {...field}
                     errorMessage={fieldState.error?.message}
@@ -232,6 +236,7 @@ export default function AddCustomerModal(props: Props) {
                     label='Телефон'
                     intent='primary'
                     {...field}
+                    value={field.value ?? ''}
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
                   />
@@ -248,6 +253,7 @@ export default function AddCustomerModal(props: Props) {
                     label='Email'
                     intent='primary'
                     {...field}
+                    value={field.value ?? ''}
                     errorMessage={fieldState.error?.message}
                     isInvalid={fieldState.invalid}
                   />

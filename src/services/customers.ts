@@ -8,8 +8,8 @@ export const createCustomer = async (payload: {
   lastName: string
   middleName: string
   birthday: CalendarDate
-  phone: string
-  email: string
+  phone: string | null
+  email: string | null
   passportSerial: string
   passportGivenAt: CalendarDate
   passportGivenBy: string
@@ -45,8 +45,8 @@ export const updateCustomer = async (payload: {
   lastName: string
   middleName: string
   birthday: CalendarDate
-  phone: string
-  email: string
+  phone: string | null
+  email: string | null
   passportSerial: string
   passportGivenAt: CalendarDate
   passportGivenBy: string
