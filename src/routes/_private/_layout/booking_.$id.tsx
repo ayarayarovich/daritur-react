@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useFieldArray, useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { HiOutlineUpload } from 'react-icons/hi'
-import { HiArrowLeft } from 'react-icons/hi2'
+import { HiArrowLeft, HiOutlineTrash } from 'react-icons/hi2'
 import { LuLoader, LuPlus } from 'react-icons/lu'
 import { Item } from 'react-stately'
 
@@ -184,6 +184,9 @@ function RouteComponent() {
                           })
                         }
                       />
+                      <Button size='sm' type='button' intent='ghost' onPress={() => customersFieldArray.remove(idx)}>
+                        <HiOutlineTrash />
+                      </Button>
                     </div>
                   </Fragment>
                 ))}
