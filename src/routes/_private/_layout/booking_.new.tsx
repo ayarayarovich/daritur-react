@@ -220,8 +220,8 @@ function RouteComponent() {
                         onSelect={(selected) =>
                           customersFieldArray.update(idx, {
                             customerId: selected.id,
-                            seatNumber: v.seatNumber,
-                            seatNumberFrom: v.seatNumberFrom,
+                            seatNumber: v.seatNumber ?? null,
+                            seatNumberFrom: v.seatNumberFrom ?? null,
                             customerName: selected.customerName,
                           })
                         }
@@ -237,7 +237,7 @@ function RouteComponent() {
                   className='flex items-center gap-2 text-sm'
                   size='sm'
                   intent='ghost'
-                  onPress={() => customersFieldArray.append({ seatNumber: null } as never)}
+                  onPress={() => customersFieldArray.append({ seatNumber: null, seatNumberFrom: null } as never)}
                 >
                   <LuPlus />
                   Добавить заказчика

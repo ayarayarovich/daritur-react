@@ -195,7 +195,7 @@ function RouteComponent() {
                   className='flex items-center gap-2 text-sm'
                   size='sm'
                   intent='ghost'
-                  onPress={() => customersFieldArray.append({} as never)}
+                  onPress={() => customersFieldArray.append({ seatNumber: null, seatNumberFrom: null } as never)}
                 >
                   <LuPlus />
                   Добавить заказчика

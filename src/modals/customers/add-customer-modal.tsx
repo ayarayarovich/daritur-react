@@ -28,12 +28,9 @@ const formSchema = z.object({
   middleName: z.string().refine(...requiredFieldRefine()),
   phone: z
     .string()
-    .refine(isValidPhoneNumber, 'Некорректный номер')
-    .refine(...requiredFieldRefine()),
-  email: z
-    .string()
-    .email()
-    .refine(...requiredFieldRefine()),
+    .transform((v) => v || null)
+    .refine((v) => (v ? isValidPhoneNumber(v) : true), 'Некорректный номер'),
+  email: z.string().email().or(z.literal('')),
   birthday: z.instanceof(CalendarDate, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
   passportSerial: z.string().refine(...requiredFieldRefine()),
   passportGivenAt: z.instanceof(CalendarDate, { message: 'Обязательное поле' }).refine(...requiredFieldRefine()),
